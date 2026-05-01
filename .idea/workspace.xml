@@ -11,7 +11,7 @@
     <option name="LAST_RESOLUTION" value="IGNORE" />
   </component>
   <component name="EmbeddingIndexingInfo">
-    <option name="cachedIndexableFilesCount" value="28" />
+    <option name="cachedIndexableFilesCount" value="29" />
     <option name="fileBasedEmbeddingIndicesEnabled" value="true" />
   </component>
   <component name="Git.Settings">
@@ -96,6 +96,9 @@
       <workItem from="1777047893748" duration="16000" />
       <workItem from="1777056290067" duration="13000" />
       <workItem from="1777236859454" duration="14372000" />
+      <workItem from="1777253148829" duration="265000" />
+      <workItem from="1777516088833" duration="8000" />
+      <workItem from="1777651281057" duration="10035000" />
     </task>
     <task id="LOCAL-00001" summary="Primer commit, funcion como clase y primeras graficas">
       <option name="closed" value="true" />
