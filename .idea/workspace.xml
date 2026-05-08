@@ -5,14 +5,23 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="e029a11d-da8c-48ca-85bb-62086381247b" name="Changes" comment="commit 8, the last commit" />
+    <list id="0b05333f-3601-488d-98b1-94cd90c7f7a3" name="Changes by alejandro" comment="" />
+    <list id="3e895222-c1aa-4915-b2c1-a3e6952598af" name="Changes by kencast" comment="" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
     <option name="LAST_RESOLUTION" value="IGNORE" />
   </component>
   <component name="EmbeddingIndexingInfo">
-    <option name="cachedIndexableFilesCount" value="29" />
+    <option name="cachedIndexableFilesCount" value="31" />
     <option name="fileBasedEmbeddingIndicesEnabled" value="true" />
+  </component>
+  <component name="FileTemplateManagerImpl">
+    <option name="RECENT_TEMPLATES">
+      <list>
+        <option value="Python Script" />
+      </list>
+    </option>
   </component>
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
@@ -99,6 +108,7 @@
       <workItem from="1777253148829" duration="265000" />
       <workItem from="1777516088833" duration="8000" />
       <workItem from="1777651281057" duration="10035000" />
+      <workItem from="1778184577043" duration="18180000" />
     </task>
     <task id="LOCAL-00001" summary="Primer commit, funcion como clase y primeras graficas">
       <option name="closed" value="true" />
@@ -164,6 +174,13 @@
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
+      <breakpoints>
+        <line-breakpoint enabled="true" suspend="THREAD" type="jupyter-line">
+          <url>file://$PROJECT_DIR$/TP2/Parte2_incompleto.ipynb</url>
+          <line>106</line>
+          <option name="timeStamp" value="7" />
+        </line-breakpoint>
+      </breakpoints>
       <default-breakpoints>
         <breakpoint type="python-exception">
           <properties notifyOnTerminate="true" exception="BaseException">
