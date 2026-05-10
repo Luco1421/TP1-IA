@@ -4,7 +4,7 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="e029a11d-da8c-48ca-85bb-62086381247b" name="Changes" comment="commit 8, the last commit" />
+    <list default="true" id="e029a11d-da8c-48ca-85bb-62086381247b" name="Changes" comment="arreglar cosillas" />
     <list id="0b05333f-3601-488d-98b1-94cd90c7f7a3" name="Changes by alejandro" comment="" />
     <list id="3e895222-c1aa-4915-b2c1-a3e6952598af" name="Changes by kencast" comment="" />
     <option name="SHOW_DIALOG" value="false" />
@@ -13,7 +13,7 @@
     <option name="LAST_RESOLUTION" value="IGNORE" />
   </component>
   <component name="EmbeddingIndexingInfo">
-    <option name="cachedIndexableFilesCount" value="31" />
+    <option name="cachedIndexableFilesCount" value="40" />
     <option name="fileBasedEmbeddingIndicesEnabled" value="true" />
   </component>
   <component name="FileTemplateManagerImpl">
@@ -108,7 +108,8 @@
       <workItem from="1777253148829" duration="265000" />
       <workItem from="1777516088833" duration="8000" />
       <workItem from="1777651281057" duration="10035000" />
-      <workItem from="1778184577043" duration="18180000" />
+      <workItem from="1778184577043" duration="18329000" />
+      <workItem from="1778354751347" duration="16451000" />
     </task>
     <task id="LOCAL-00001" summary="Primer commit, funcion como clase y primeras graficas">
       <option name="closed" value="true" />
@@ -176,9 +177,9 @@
     <breakpoint-manager>
       <breakpoints>
         <line-breakpoint enabled="true" suspend="THREAD" type="jupyter-line">
-          <url>file://$PROJECT_DIR$/TP2/Parte2_incompleto.ipynb</url>
-          <line>106</line>
-          <option name="timeStamp" value="7" />
+          <url>file://$PROJECT_DIR$/TP2/TP2.ipynb</url>
+          <line>431</line>
+          <option name="timeStamp" value="17" />
         </line-breakpoint>
       </breakpoints>
       <default-breakpoints>
