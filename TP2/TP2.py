@@ -84,22 +84,14 @@ class Table:
     """! The Table class
     Defines the functions used to generate, update and show a pandas dataframe
     """
-    def __init__(self, data: pd.DataFrame, names : list[str], table_name : str):
-        """! The Table class initializer
-        @param data The panda data frame
-        @param names The names used to define the columns in the table
 
-        @return An instance of the Table class initialized with a dataframe with the given columns names
-        """
+    def __init__(self, data: pd.DataFrame, names : list[str], table_name : str):
+        self.data = data
 
         self.table_name = table_name
 
-        # The dataframe of the table
-        self.data = data
-
-        # Initialize all the columns with the given names
         for name in names:
-            self.data[name] = pd.Series(dtype=object)
+            data[name] = pd.Series(dtype=object)
 
     def add(self, row : int, column : str, value):
         """! Add a value in a specific column of the table
