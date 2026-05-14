@@ -1,4 +1,11 @@
-!pip install stanza spacy
+#!pip install stanza spacy
+import re
+import pandas as pd
+import simplemma
+import torch
+
+from sklearn.feature_extraction.text import TfidfVectorizer
+
 
 #  Probar con stanza y spacy para comparar
 # Cambiar a nltk tokenize en lugar de re, aunque no se si es lo mismo o mejoraria algo, igual es biblioteca menos
@@ -32,7 +39,7 @@ class TextProcessor:
 
 ########################################################################################################################
 
-!pip install transformers
+#!pip install transformers
 
 # Actualmente con un modelo multilenguaje, pero probar con esto a ver si mejora
 
@@ -44,7 +51,7 @@ tokenizer = BertTokenizer.from_pretrained(modelo)
 bert = BertModel.from_pretrained(modelo)
 
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-model.to(device)
+modelo.to(device)
 
 corpus = [
     "Hola, estoy feliz",
@@ -63,3 +70,7 @@ with torch.no_grad():
   outputs = bert(**inputs)
 
 embeddings = outputs.pooler_output
+
+
+### Hablar de SUGEVAL y esas cosas, ademas investigar el numero de iteraciones y el alpha, comparar bastante con tablas
+## Hablar de los prompts probados
