@@ -24,11 +24,16 @@ import re
 # %% [markdown]
 # # Enviroment Variables
 # %%
-os.environ["HF_TOKEN"] = "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"
+os.environ["HF_TOKEN"] = "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" # Change
+HF_TOKEN = os.getenv("HF_TOKEN")
+TOKEN = HF_TOKEN if HF_TOKEN else None
 
-device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
+os.environ['PYTORCH_CUDA_ALLOC_CONF'] = 'expandable_segments:True'
 
 RELATIVE_ERROR = 1e-12
+RATIO_SPLIT = 0.1
+MAX_SIZE = 4000
 
 pd.options.display.float_format = (lambda x: '0' if x == 0 else f'{x}')
 # %% [markdown]
@@ -237,6 +242,48 @@ class DatasetGenerator:
         points, classification = func(seed)
         x_train, x_test, y_train, y_test = train_test_split(points, classification, test_size = ratio)
         return [x_train, y_train], [x_test, y_test]
+
+class Dataset:
+    def __init__(self, path : str):
+        self.path = path
+        self.corpus = []
+        self.labels = []
+
+    def read(self):
+        dataset = pd.read_excel(self.path, sheet_name="Sheet1")
+        for i,row in dataset.iterrows():
+            self.corpus.append(row["Segment"])
+            self.corpus.append(row["Proposal"])
+            self.labels.append(1)
+            self.labels.append(0)
+        return self
+
+class Batcher:
+    def __init__(self):
+        self.max_size = MAX_SIZE
+
+    def set_batches(self, corpus : list[str]):
+        batches = []
+        batch = ""
+        id = 1
+        for doc in corpus:
+            batch += f"{id}. \"{doc}\" \n"
+            id += 1
+            if len(batch) > self.max_size :
+                batches.append(batch)
+                batch = ""
+                id = 1
+        if len(batch) > 0 :
+            batches.append(batch)
+        return batches
+
+    def set_shots(self, corpus : list[str], labels: list[int]):
+        batch = ""
+        id = 1
+        for i in range(len(corpus)):
+            batch += f"{id}. \"{corpus[i]}\" \n Clasificación: {labels[i]} \n"
+            id+=1
+        return batch
 # %% [markdown]
 # # Logistic Regression Analysis
 # %%
@@ -247,14 +294,14 @@ class TrainRegression:
 
     @staticmethod
     def transformData(data):
-        ones_tensor = torch.ones(data.shape[0], 1, device=device)
+        ones_tensor = torch.ones(data.shape[0], 1, device=DEVICE)
         return torch.cat((ones_tensor, data), dim=1)
 
     def train(self, training_data: list[torch.Tensor], iterations : int = 250, epsilon : float = 0, alpha : float = 0.1):
         data, labels = training_data
         data = self.transformData(data)
         dim = data.shape[1]
-        self.w = torch.rand(dim, device=device).view(-1, 1)
+        self.w = torch.rand(dim, device=DEVICE).view(-1, 1)
         self.w, history_error = self.model.train(data, self.w , labels.view(-1, 1), iterations, alpha, epsilon)
         return self.w, history_error
 
@@ -274,7 +321,7 @@ class Analysis:
 
     def __init__(self):
         self.iterations = 250
-        self.test_partition = 0.3
+        self.test_partition = RATIO_SPLIT
         self.dataset_generator = DatasetGenerator()
 
     def make_table(self, table : Table, separable_errors : list[float], nonseparable_errors : list[float]):
@@ -404,22 +451,8 @@ def test_analyzer():
 
 # test_analyzer()
 # %%
-class ReadDataset:
-    def __init__(self, path : str):
-        self.path = path
 
-    def read(self):
-        dataset = pd.read_excel(self.path, sheet_name="Sheet1")
-        self.corpus = []
-        self.labels = []
-        for i,row in dataset.iterrows():
-            self.corpus.append(row["Segment"])
-            self.corpus.append(row["Proposal"])
-            self.labels.append(1)
-            self.labels.append(0)
 
-# read_dataset = ReadDataset("FEINA_1.xlsx")
-# read_dataset.read()
 # %%
 def train_model(corpus, labels, test_size : float = 0.3):
     text_processor = TextProcessor()
@@ -428,8 +461,8 @@ def train_model(corpus, labels, test_size : float = 0.3):
     data_vectorized, _ = text_processor.tfidf(corpus)
     data_matrix = text_processor.make_descriptor(data_vectorized)
 
-    labels_tensor = torch.tensor(labels, dtype=torch.float32).view(-1, 1).to(device)
-    data_matrix = data_matrix.to(device)
+    labels_tensor = torch.tensor(labels, dtype=torch.float32).view(-1, 1).to(DEVICE)
+    data_matrix = data_matrix.to(DEVICE)
 
     train_data, test_data, train_label, test_label = train_test_split(data_matrix, labels_tensor, test_size = test_size)
 
@@ -449,16 +482,16 @@ def train_model(corpus, labels, test_size : float = 0.3):
 # %%
 def BERT_train(corpus, labels ,test_size : float = 0.3):
     model = SentenceTransformer("sentence-transformers/distiluse-base-multilingual-cased-v1")
-    model.to(device)
+    model.to(DEVICE)
 
     embeddings = model.encode(corpus, convert_to_tensor=True, normalize_embeddings=True)
     train_data, test_data, train_label, test_label = train_test_split(embeddings, labels, test_size = test_size)
 
     lr_model = TrainRegression()
-    lr_model.train([train_data, torch.tensor(train_label).to(device)], 200, 1e-6, 1)
+    lr_model.train([train_data, torch.tensor(train_label).to(DEVICE)], 200, 1e-6, 1)
 
-    mae = lr_model.medium_absolute_error([test_data, torch.tensor(test_label).to(device)])
-    acc = lr_model.accuracy([test_data, torch.tensor(test_label).to(device)])
+    mae = lr_model.medium_absolute_error([test_data, torch.tensor(test_label).to(DEVICE)])
+    acc = lr_model.accuracy([test_data, torch.tensor(test_label).to(DEVICE)])
     print("Medium Absolute Error", mae.item())
     print("Accuracy", acc.item())
 
