@@ -32,7 +32,8 @@ DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
 os.environ['PYTORCH_CUDA_ALLOC_CONF'] = 'expandable_segments:True'
 
 RELATIVE_ERROR = 1e-12
-RATIO_SPLIT = 0.1
+RATIO_SPLIT_GD = 0.3
+RATIO_SPLIT_4C = 0.2
 MAX_SIZE = 4000
 
 pd.options.display.float_format = (lambda x: '0' if x == 0 else f'{x}')
@@ -238,9 +239,9 @@ class DatasetGenerator:
         return x_tensor, y_tensor
 
     @staticmethod
-    def generate_data(seed : int, func, ratio : float):
+    def generate_data(seed : int, func):
         points, classification = func(seed)
-        x_train, x_test, y_train, y_test = train_test_split(points, classification, test_size = ratio)
+        x_train, x_test, y_train, y_test = train_test_split(points, classification, test_size = RATIO_SPLIT_GD)
         return [x_train, y_train], [x_test, y_test]
 
 class Dataset:
@@ -321,7 +322,6 @@ class Analysis:
 
     def __init__(self):
         self.iterations = 250
-        self.test_partition = RATIO_SPLIT
         self.dataset_generator = DatasetGenerator()
 
     def make_table(self, table : Table, separable_errors : list[float], nonseparable_errors : list[float]):
@@ -333,7 +333,7 @@ class Analysis:
 
     def analyze_data(self, seed : int, title : str, func):
         model = TrainRegression()
-        training_data, test_data = self.dataset_generator.generate_data(seed, func, self.test_partition)
+        training_data, test_data = self.dataset_generator.generate_data(seed, func)
         w, errors = model.train(training_data, self.iterations)
 
         y_line = model.make_line(test_data[0])
@@ -359,7 +359,7 @@ class Analysis:
         std_list = torch.empty(0)
 
         for i in range(10):
-            train_data, test_data = self.dataset_generator.generate_data(random.randint(0,10000), func, self.test_partition)
+            train_data, test_data = self.dataset_generator.generate_data(random.randint(0,10000), func)
             model = TrainRegression()
             _, error = model.train(train_data, self.iterations)
             mae_mean = torch.tensor(error).mean()

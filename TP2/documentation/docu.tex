@@ -6,6 +6,7 @@
 \usepackage{geometry}
 \usepackage{graphicx}
 \usepackage{float}
+\usepackage{subcaption}
 \usepackage{amsmath}
 \usepackage{amssymb}
 \usepackage{array}
@@ -62,33 +63,40 @@ En este trabajo se aborda una tarea relacionada: clasificar segmentos de texto e
 
 El reporte se divide en dos bloques. Primero, se implementa y analiza la regresión logística a partir de una implementación base del perceptrón, usando datos sintéticos linealmente separables y no linealmente separables. Segundo, se aplica esa regresión logística a la clasificación de textos mediante representaciones TF-IDF y vectores empotrados, y se comparan sus resultados contra clasificadores basados en LLMs bajo configuraciones sin ejemplos y con few-shot learning.
 
-\pendiente{Cuando todos los experimentos estén completos, actualizar este párrafo con los nombres finales de los modelos LLM, las variantes finales de preprocesamiento y la métrica principal usada en la comparación global.}
-
 \section{Metodología general}
 
-La consigna solicita una comparación experimental entre modelos de clasificación, por lo que el diseño del trabajo debe separar claramente tres elementos: representación de los datos, clasificador y protocolo de evaluación. Esta separación permite interpretar si una mejora proviene del algoritmo de clasificación, de la forma en que se representa el texto, o de una diferencia en las condiciones experimentales.
+El objetivo del presente documento es realizar una comparación experimental entre modelos de clasificación. Por esta razón, el diseño del trabajo separa tres elementos: representación de los datos, clasificador y protocolo de evaluación. Esta separación permite interpretar si una mejora proviene del algoritmo de clasificación, de la forma en que se representa el texto o de una diferencia en las condiciones experimentales.
 
-Para los experimentos sintéticos se generan dos tipos de conjuntos: uno linealmente separable y otro no linealmente separable. En ambos casos se entrena una regresión logística y se evalúa el error medio absoluto (MAE), definido como
+Para los experimentos con datos sintéticos se generan dos tipos de conjuntos: uno linealmente separable y otro no linealmente separable. En ambos casos se entrena una regresión logística y se evalúa el error medio absoluto (MAE), definido como
 
 \begin{equation}
 e_{\text{MAE}} = \frac{1}{N}\sum_{i=1}^{N}|t_i - \tilde{t}_i|,
 \end{equation}
 
-donde $t_i$ es la etiqueta esperada y $\tilde{t}_i$ es la salida estimada por el modelo. Para cumplir con la especificación, la partición de esta sección debe usar 70\% de muestras para entrenamiento y 30\% para prueba, seleccionadas aleatoriamente.
+donde $t_i$ es la etiqueta esperada y $\tilde{t}_i$ es la salida estimada por el modelo.
 
-Para los experimentos con textos, se utiliza FEINA como conjunto base. Cada par del conjunto contiene un segmento complejo y una propuesta simplificada; por tanto, el problema se formula como clasificación binaria. En los modelos basados en regresión logística, el texto se transforma primero a una representación numérica. En los modelos basados en LLMs, el texto se clasifica directamente mediante instrucciones en lenguaje natural.
-
-\pendiente{Definir aquí el criterio final de partición para los experimentos de texto individuales y para la prueba completa de 30 corridas. La prueba completa debe usar particiones 80\% entrenamiento y 20\% prueba, manteniendo la misma partición para todos los tratamientos en cada corrida.}
+Para los experimentos con textos, se utiliza FEINA como conjunto base. Cada par contiene un segmento complejo y una propuesta simplificada; por tanto, el problema se formula como clasificación binaria. En los modelos basados en regresión logística, el texto se transforma primero a una representación numérica. En los modelos basados en LLMs, el texto se clasifica directamente mediante instrucciones en lenguaje natural.
 
 \section{Perceptrón}
 
-El perceptrón es uno de los modelos clásicos de clasificación binaria. Su idea central consiste en aprender un vector de pesos $\mathbf{w}$ que define una frontera de decisión lineal. Dado un vector de entrada $\mathbf{x}$, el modelo calcula el producto interno $\mathbf{x}^{T}\mathbf{w}$ y asigna una clase según el signo del resultado:
+El perceptrón fue propuesto por Rosenblatt en 1958 como un modelo probabilístico inspirado en procesos de almacenamiento y organización de información en el cerebro \cite{rosenblatt1958perceptron}. En aprendizaje supervisado, puede interpretarse como un clasificador lineal binario: aprende un vector de pesos $\mathbf{w}$ que define una frontera de decisión en el espacio de entrada. Dado un vector $\mathbf{x}$, el modelo calcula el producto interno $\mathbf{x}^{T}\mathbf{w}$ y asigna una clase según el signo del resultado:
 
 \begin{equation}
 \hat{y} = \operatorname{sign}(\mathbf{x}^{T}\mathbf{w}).
 \end{equation}
 
-Esta formulación es simple y eficiente, pero también impone una restricción fuerte: el modelo solo puede resolver perfectamente problemas linealmente separables. Si las clases se encuentran mezcladas de forma no lineal, como ocurre en estructuras similares al problema XOR, el perceptrón no puede construir una frontera adecuada sin transformar previamente el espacio de características.
+La función signo convierte la salida continua del producto interno en una decisión discreta. En este contexto, si $\mathbf{x}^{T}\mathbf{w} > 0$, la muestra se asigna a la clase positiva; si $\mathbf{x}^{T}\mathbf{w} < 0$, se asigna a la clase negativa. El caso exactamente igual a cero representa una muestra ubicada sobre la frontera de decisión y suele resolverse por convención de implementación.
+
+Esta formulación es simple y eficiente, pero impone una restricción fuerte: el modelo solo puede separar perfectamente problemas linealmente separables. Si las clases se encuentran mezcladas de forma no lineal, como ocurre en estructuras similares al problema XOR, una única frontera lineal no puede resolver correctamente todas las muestras. Esta limitación es relevante para entender por qué el experimento sintético incluye un conjunto no linealmente separable.
+
+\begin{figure}[H]
+\centering
+\fbox{\parbox{0.75\textwidth}{\centering
+\vspace{1.2cm}
+\pendiente{Insertar diagrama conceptual del caso XOR o de clases no linealmente separables.}
+\vspace{1.2cm}}}
+\caption{Ejemplo conceptual de un problema no linealmente separable.}
+\end{figure}
 
 El entrenamiento del perceptrón actualiza los pesos usando únicamente las muestras mal clasificadas. Si $U$ es el conjunto de dichas muestras, una actualización típica puede escribirse como
 
@@ -96,20 +104,22 @@ El entrenamiento del perceptrón actualiza los pesos usando únicamente las mues
 \mathbf{w}_{k+1} = \mathbf{w}_{k} + \alpha \sum_{\mathbf{x}_i \in U} t_i \mathbf{x}_i,
 \end{equation}
 
-donde $\alpha$ es la tasa de aprendizaje. Cuando el conjunto de datos es linealmente separable y se cumplen ciertas condiciones, el algoritmo converge a una solución que separa las clases. Sin embargo, esta garantía deja de aplicar cuando los datos no son linealmente separables.
+donde $\alpha$ es la tasa de aprendizaje. El teorema de convergencia del perceptrón establece que, si los datos son linealmente separables, existe un margen positivo y se usa una tasa de aprendizaje constante, el algoritmo encuentra una solución separadora en un número finito de actualizaciones. La intuición de la demostración es que cada actualización aumenta la alineación entre los pesos y algún vector separador óptimo, mientras que el crecimiento de la norma de los pesos queda acotado; ambas condiciones implican que no puede haber infinitos errores si existe una separación lineal.
 
-\pendiente{Agregar una explicación breve del teorema de convergencia del perceptrón y conectar explícitamente su validez con el caso linealmente separable.}
+En el perceptrón clásico, usar $\alpha = 1$ es suficiente porque la tasa de aprendizaje solo escala el tamaño de las actualizaciones. Para datos linealmente separables, cambiar $\alpha$ modifica la escala de los pesos, pero no necesariamente la orientación de la frontera final. En problemas no separables o en variantes con criterios de parada prácticos, la elección de $\alpha$ sí puede afectar la estabilidad del entrenamiento y el comportamiento observado.
 
 \section{Regresión logística}
 
-La regresión logística es un modelo de clasificación binaria que estima la probabilidad de pertenencia a una clase. A diferencia del perceptrón, no aplica directamente una función signo, sino una función sigmoide sobre la combinación lineal de las entradas:
+La regresión logística es un modelo estadístico de clasificación binaria desarrollado formalmente para analizar variables de respuesta dicotómicas. Una formulación influyente fue presentada por Cox en 1958 para secuencias binarias \cite{cox1958binary}. En lugar de producir directamente una clase discreta, el modelo estima la probabilidad de pertenencia a una clase mediante una función sigmoide aplicada sobre una combinación lineal de las entradas:
 
 \begin{equation}
 \hat{y} = \sigma(\mathbf{x}^{T}\mathbf{w}) =
 \frac{1}{1 + e^{-\mathbf{x}^{T}\mathbf{w}}}.
 \end{equation}
 
-La salida $\hat{y}$ pertenece al intervalo $[0,1]$, por lo que puede interpretarse como una probabilidad. Para convertirla en clase discreta se usa un umbral, usualmente $0.5$. Esta diferencia es importante porque la sigmoide es diferenciable y permite optimizar los pesos mediante gradiente. La regresión logística, además, es ampliamente usada en problemas de clasificación binaria por su interpretabilidad, eficiencia y capacidad de combinar múltiples variables explicativas \cite{intro_regresion}.
+La salida $\hat{y}$ pertenece al intervalo $[0,1]$, por lo que puede interpretarse como una probabilidad. Para convertirla en una clase se usa un umbral, usualmente $0.5$. Esta diferencia respecto al perceptrón es importante porque la sigmoide es diferenciable y permite ajustar los pesos mediante gradiente. Además, la regresión logística es ampliamente usada en problemas de clasificación binaria por su interpretabilidad y eficiencia \cite{intro_regresion}.
+
+Matemáticamente, la sigmoide suaviza la decisión. Valores muy negativos de $\mathbf{x}^{T}\mathbf{w}$ se aproximan a $0$, valores muy positivos se aproximan a $1$, y valores cercanos a cero quedan cerca de $0.5$. Por eso, el modelo no solo indica una clase, sino también qué tan cerca está una muestra de la frontera de decisión.
 
 \subsection{Diferencias respecto al perceptrón}
 
@@ -118,15 +128,15 @@ La implementación de regresión logística se construye usando como base la est
 \begin{table}[H]
 \centering
 \caption{Diferencias principales entre perceptrón y regresión logística.}
-\begin{tabular}{lll}
+\begin{tabular}{p{0.22\textwidth}p{0.32\textwidth}p{0.32\textwidth}}
 \toprule
 Componente & Perceptrón & Regresión logística \\
 \midrule
-Salida & Clase discreta por signo & Probabilidad por sigmoide \\
-Activación & No diferenciable & Diferenciable \\
-Actualización & Muestras mal clasificadas & Todas las muestras \\
-Error & Criterio del perceptrón & Error probabilístico o absoluto \\
-Interpretación & Separador lineal & Probabilidad de clase \\
+Salida & Clase discreta obtenida con la función signo. & Probabilidad en $[0,1]$ obtenida con sigmoide. \\
+Activación & No diferenciable en la frontera. & Diferenciable, útil para optimización por gradiente. \\
+Uso de muestras & Actualiza con muestras mal clasificadas. & Todas las muestras aportan al gradiente. \\
+Error & Criterio basado en errores de clasificación. & Error continuo entre etiqueta y probabilidad estimada. \\
+Interpretación & Separador lineal binario. & Separador lineal probabilístico. \\
 \bottomrule
 \end{tabular}
 \end{table}
@@ -160,33 +170,15 @@ El gradiente implementado para la regresión logística sigue la forma vectoriza
 \frac{1}{N}\sum_{i=1}^{N} \mathbf{x}_i(t_i - \hat{y}_i).
 \end{equation}
 
-La actualización de pesos queda entonces:
+Esta forma aparece al medir la discrepancia entre la etiqueta real $t_i$ y la probabilidad estimada $\hat{y}_i$. Si el modelo predice una probabilidad menor que la etiqueta real, el término $(t_i-\hat{y}_i)$ empuja los pesos en dirección de $\mathbf{x}_i$; si predice una probabilidad demasiado alta, el término tiene signo contrario. Así, cada muestra aporta información proporcional al error cometido, no solo una señal binaria de correcto o incorrecto.
+
+La actualización de pesos resultante es
 
 \begin{equation}
 \mathbf{w}_{k+1} = \mathbf{w}_{k} + \alpha \nabla.
 \end{equation}
 
-Esta formulación permite entrenar usando operaciones matriciales, reduciendo el uso de ciclos explícitos sobre las muestras. También evita depender únicamente de los errores discretos de clasificación, pues cada muestra contribuye en proporción a la diferencia entre su etiqueta real y la probabilidad estimada.
-
-\subsection{Pruebas unitarias}
-
-La especificación solicita al menos dos pruebas unitarias para las funciones modificadas respecto al perceptrón base. Estas pruebas deben documentar objetivo, entradas, salidas esperadas y resultado observado. La Tabla \ref{tab:unitarias-logistica} muestra el formato propuesto para reportarlas.
-
-\begin{table}[H]
-\centering
-\caption{Pruebas unitarias propuestas para la regresión logística.}
-\label{tab:unitarias-logistica}
-\begin{tabular}{llll}
-\toprule
-Prueba & Función & Objetivo & Resultado \\
-\midrule
-1 & \texttt{forward} & Verificar $\sigma(Xw)$ con valores conocidos & \pendiente{Completar} \\
-2 & \texttt{gradient} & Verificar dimensión y valor del gradiente & \pendiente{Completar} \\
-\bottomrule
-\end{tabular}
-\end{table}
-
-\pendiente{Completar la tabla con los datos exactos de las pruebas implementadas o por implementar.}
+Esta formulación es más informativa que la actualización del perceptrón para problemas con incertidumbre o solapamiento entre clases. El perceptrón reacciona únicamente cuando una muestra queda mal clasificada; la regresión logística, en cambio, ajusta los pesos incluso cuando la clasificación discreta es correcta pero la probabilidad estimada todavía está lejos de la etiqueta. Por eso puede producir curvas de error más suaves y análisis más detallados durante el entrenamiento.
 
 \section{Resultados con datos sintéticos}
 
@@ -194,9 +186,9 @@ Esta sección evalúa la regresión logística en dos escenarios controlados: da
 
 \subsection{Datos linealmente separables}
 
-En el caso linealmente separable, se espera que una frontera lineal pueda separar adecuadamente las clases. Por esta razón, el error debe disminuir de forma más clara durante el entrenamiento y la superficie de decisión debería ubicarse entre los dos grupos de puntos.
+Para generar los datos linealmente separables se utiliza la función \texttt{make\_blobs} de \texttt{scikit-learn}, configurada con dos centros y baja desviación de agrupamiento. Esta elección produce dos nubes de puntos compactas, por lo que una frontera lineal debería separar las clases con bajo error.
 
-Para graficar la superficie de decisión, se parte de la ecuación lineal aprendida por el modelo:
+En este caso, se espera que el error disminuya de forma clara durante el entrenamiento y que la superficie de decisión quede ubicada entre los dos grupos de puntos. Para graficar dicha superficie, se parte de la ecuación lineal aprendida por el modelo:
 
 \begin{equation}
 w_0 + w_1x_1 + w_2x_2 = 0.
@@ -210,62 +202,103 @@ x_2 = -\frac{w_0 + w_1x_1}{w_2}.
 
 Esta recta se superpone al diagrama de dispersión para visualizar la separación inducida por los pesos aprendidos.
 
-\pendiente{Insertar figura de dispersión con superficie de decisión para datos linealmente separables.}
-\pendiente{Insertar gráfica del error durante el entrenamiento para una corrida representativa.}
+\begin{figure}[H]
+\centering
+\begin{subfigure}{0.48\textwidth}
+    \centering
+    \fbox{\parbox{0.9\linewidth}{\centering \vspace{1cm}\pendiente{Dispersión + frontera}\vspace{1cm}}}
+    \caption{Superficie de decisión.}
+\end{subfigure}
+\hfill
+\begin{subfigure}{0.48\textwidth}
+    \centering
+    \fbox{\parbox{0.9\linewidth}{\centering \vspace{1cm}\pendiente{Curva de MAE}\vspace{1cm}}}
+    \caption{Error por iteración.}
+\end{subfigure}
+\caption{Resultados visuales para datos linealmente separables.}
+\end{figure}
 
 \subsection{Datos no linealmente separables}
 
-En el caso no linealmente separable, una frontera lineal resulta insuficiente para separar por completo las clases. Por tanto, aunque el entrenamiento puede reducir el error, se espera que el MAE final sea mayor que en el caso linealmente separable. Este resultado no indica necesariamente una falla de implementación; más bien evidencia una limitación esperada del modelo lineal.
+Para generar los datos no linealmente separables se utiliza la función \texttt{make\_moons} de \texttt{scikit-learn}, con ruido agregado. Esta función produce dos clases con forma de medias lunas entrelazadas, una estructura que no puede separarse completamente con una única recta.
 
-\pendiente{Insertar figura de dispersión con superficie de decisión para datos no linealmente separables.}
-\pendiente{Insertar gráfica del error durante el entrenamiento para una corrida representativa.}
+En este caso, una frontera lineal resulta insuficiente para separar por completo las clases. Por tanto, aunque el entrenamiento puede reducir el error, se espera que el MAE final sea mayor que en el caso linealmente separable. Este resultado no indica necesariamente una falla de implementación; más bien evidencia una limitación esperada del modelo lineal.
+
+\begin{figure}[H]
+\centering
+\begin{subfigure}{0.48\textwidth}
+    \centering
+    \fbox{\parbox{0.9\linewidth}{\centering \vspace{1cm}\pendiente{Dispersión + frontera}\vspace{1cm}}}
+    \caption{Superficie de decisión.}
+\end{subfigure}
+\hfill
+\begin{subfigure}{0.48\textwidth}
+    \centering
+    \fbox{\parbox{0.9\linewidth}{\centering \vspace{1cm}\pendiente{Curva de MAE}\vspace{1cm}}}
+    \caption{Error por iteración.}
+\end{subfigure}
+\caption{Resultados visuales para datos no linealmente separables.}
+\end{figure}
 
 \subsection{Resultados promedio para 10 corridas}
 
-La especificación solicita reportar el promedio del MAE y su desviación estándar en 10 corridas, generando datos aleatorios en cada una. La Tabla \ref{tab:synthetic-results} deja la estructura final para reportar dichos resultados.
+En esta sección se reporta el promedio del MAE y su desviación estándar en 10 corridas, generando datos aleatorios en cada una. La implementación registra para cada corrida el promedio del MAE durante entrenamiento, la desviación estándar del MAE durante entrenamiento y el MAE obtenido con datos de prueba. Para facilitar la lectura, la tabla principal resume los agregados, mientras que las tablas por corrida pueden incluirse como anexos o como tablas complementarias.
 
 \begin{table}[H]
 \centering
-\caption{Resultados promedio de regresión logística con datos sintéticos.}
+\caption{Resumen de resultados de regresión logística con datos sintéticos.}
 \label{tab:synthetic-results}
 \begin{tabular}{lll}
 \toprule
 Métrica & Linealmente separable & No linealmente separable \\
 \midrule
-Promedio de MAE & \pendiente{Completar} & \pendiente{Completar} \\
-Desviación estándar del MAE & \pendiente{Completar} & \pendiente{Completar} \\
-Mejor MAE observado & \pendiente{Completar} & \pendiente{Completar} \\
+Promedio de MAE en prueba & \pendiente{Completar} & \pendiente{Completar} \\
+Desviación estándar del MAE de entrenamiento & \pendiente{Completar} & \pendiente{Completar} \\
+Mejor MAE observado en prueba & \pendiente{Completar} & \pendiente{Completar} \\
 \bottomrule
 \end{tabular}
 \end{table}
-
-\pendiente{Actualizar esta tabla con resultados generados bajo la partición 70\% entrenamiento y 30\% prueba indicada por la especificación.}
 
 \section{Regresión logística con TF-IDF}
 
 TF-IDF (\textit{Term Frequency-Inverse Document Frequency}) es una representación clásica para documentos. Su objetivo es asignar mayor peso a términos frecuentes en un documento, pero menos comunes en el corpus completo. De esta manera, palabras muy generales pierden relevancia, mientras que términos más distintivos adquieren mayor peso.
 
-En este proyecto, TF-IDF se usa como etapa de extracción de características. Luego, los vectores generados se convierten en una matriz numérica que puede ser usada por la regresión logística implementada previamente. Esta elección permite evaluar una línea base interpretable y relativamente eficiente para clasificación de textos.
+En este proyecto, TF-IDF se usa como etapa de extracción de características. La implementación utiliza \texttt{TfidfVectorizer} de \texttt{scikit-learn} con un analizador personalizado. Este analizador aplica el preprocesamiento definido en el proyecto antes de construir el vocabulario y calcular los pesos TF-IDF. Luego, la matriz dispersa producida por el vectorizador se transforma con \texttt{toarray()} y se convierte a un tensor \texttt{torch.float32}, que es el formato esperado por la regresión logística implementada previamente.
 
 \subsection{Preprocesamiento}
 
-El preprocesamiento tiene como objetivo reducir ruido lingüístico antes de construir los descriptores. La estrategia base consiste en convertir el texto a minúsculas, tokenizar, eliminar palabras vacías en español y lematizar los tokens restantes. La eliminación de \textit{stopwords} reduce términos frecuentes con bajo poder discriminativo, mientras que la lematización agrupa variantes morfológicas bajo una forma común.
+La configuración final usada en el clasificador TF-IDF consiste en convertir el texto a minúsculas, tokenizar mediante la expresión regular \texttt{[a-záéíóúñü]+}, eliminar \textit{stopwords} en español provistas por NLTK y lematizar los tokens restantes con Simplemma. Esta configuración fue elegida como línea base del proyecto porque mantiene el procesamiento simple, reproducible y suficientemente adecuado para texto en español sin introducir una dependencia pesada en esta etapa.
 
-En español, esta etapa merece atención especial. Herramientas ampliamente usadas en inglés no siempre preservan bien acentos, conjugaciones, formas pronominales o vocabulario especializado. Por ello, conviene comparar cualitativamente varias alternativas de preprocesamiento, como NLTK, Simplemma, spaCy y Stanza, antes de fijar la configuración final.
+La comparación cualitativa entre alternativas de preprocesamiento todavía se documentará por separado. En particular, se analizarán variantes con y sin lematización, además de configuraciones basadas en Simplemma, spaCy y Stanza. El objetivo de esa comparación no es cambiar la descripción del clasificador actual, sino justificar con evidencia por qué la configuración usada resulta razonable frente a otras posibilidades.
 
-\pendiente{Agregar una tabla cualitativa comparando tokenización y lematización con NLTK, Simplemma, spaCy y Stanza. Esta comparación puede ir en un documento auxiliar y resumirse aquí.}
+\begin{table}[H]
+\centering
+\caption{Estructura para comparar alternativas de preprocesamiento.}
+\begin{tabular}{llll}
+\toprule
+Configuración & Tokenización & Lematización & Observaciones cualitativas \\
+\midrule
+Regex + Simplemma & Regex propia & Simplemma & \pendiente{Completar} \\
+Regex sin lematización & Regex propia & No aplica & \pendiente{Completar} \\
+spaCy & \pendiente{Completar} & \pendiente{Completar} & \pendiente{Completar} \\
+Stanza & \pendiente{Completar} & \pendiente{Completar} & \pendiente{Completar} \\
+\bottomrule
+\end{tabular}
+\end{table}
 
 \subsection{Construcción de descriptores}
 
-Una vez preprocesados los documentos, se aplica la transformación TF-IDF para obtener una matriz documento-término. Cada fila representa un texto y cada columna representa un término del vocabulario aprendido. El valor de cada celda indica la importancia relativa del término en ese documento.
+Una vez preprocesados los documentos, \texttt{TfidfVectorizer} aprende el vocabulario del corpus y construye una matriz documento-término. Cada fila representa un texto y cada columna representa un término del vocabulario aprendido. El valor de cada celda indica la importancia relativa del término en ese documento.
 
-Para examinar cualitativamente esta representación, se recomienda seleccionar algunos textos de prueba y mostrar sus términos con mayor peso TF-IDF. Esto permite detectar si la representación está capturando palabras financieramente relevantes o si está dominada por ruido del preprocesamiento.
+Para examinar cualitativamente esta representación, se seleccionarán textos simples y complejos y se reportarán los términos con mayor peso TF-IDF. Esto permitirá verificar si el descriptor captura vocabulario relevante para complejidad financiera o si queda dominado por términos poco informativos.
 
 \pendiente{Insertar ejemplos cualitativos de términos con mayor peso TF-IDF para textos simples y complejos.}
 
 \subsection{Clasificación y resultados}
 
-Después de construir la matriz TF-IDF, se entrena la regresión logística usando las etiquetas binarias del conjunto FEINA. El resultado debe reportarse sobre el conjunto de prueba definido para el experimento, indicando al menos MAE y exactitud.
+El conjunto FEINA se procesa usando sus columnas \texttt{Segment} y \texttt{Proposal}. En la implementación actual, cada \texttt{Segment} se agrega al corpus con etiqueta \claseCompleja{}, y cada \texttt{Proposal} se agrega con etiqueta \claseSimple{}. Así, cada par del archivo aporta dos muestras al clasificador: una compleja y una simple.
+
+Después de construir la matriz TF-IDF, se entrena la regresión logística usando esas etiquetas binarias. El resultado debe reportarse sobre el conjunto de prueba definido para el experimento, indicando al menos MAE y exactitud.
 
 \begin{table}[H]
 \centering
@@ -277,7 +310,7 @@ Métrica & Valor \\
 MAE & \pendiente{Completar} \\
 Exactitud & \pendiente{Completar} \\
 Tamaño del vocabulario & \pendiente{Completar} \\
-Configuración de preprocesamiento & \pendiente{Completar} \\
+Configuración de preprocesamiento & Regex + NLTK stopwords + Simplemma \\
 \bottomrule
 \end{tabular}
 \end{table}
@@ -286,32 +319,15 @@ Configuración de preprocesamiento & \pendiente{Completar} \\
 
 Los vectores empotrados representan textos en un espacio numérico denso, donde la cercanía geométrica intenta reflejar similitud semántica. A diferencia de TF-IDF, que produce vectores dispersos basados en conteos ponderados, los embeddings capturan información distribuida aprendida previamente a partir de grandes corpus.
 
-En este trabajo se usa un modelo de embeddings multilingüe para proyectar los textos de FEINA a un espacio vectorial. Posteriormente, esos vectores se clasifican con la misma regresión logística implementada en la primera parte. Esto permite comparar una representación lexical clásica contra una representación semántica densa manteniendo constante el clasificador.
+En este trabajo se usa \texttt{sentence-transformers/distiluse-base-multilingual-cased-v1} para proyectar los textos de FEINA a un espacio vectorial. Posteriormente, esos vectores se clasifican con la misma regresión logística implementada en la primera parte. Esto permite comparar una representación léxica clásica contra una representación semántica densa manteniendo constante el clasificador.
+
+El uso de un modelo multilingüe tiene ventajas y riesgos. Como ventaja, permite trabajar directamente con español y otros idiomas sin entrenar un modelo desde cero. Como riesgo, parte de su capacidad se distribuye entre varios idiomas, por lo que podría perder precisión frente a modelos especializados en español, como BETO o variantes de RoBERTa entrenadas para este idioma. La decisión final debe justificarse empíricamente: si el modelo multilingüe produce mejores resultados o un balance más conveniente entre rendimiento y costo computacional, su uso queda justificado para este proyecto.
 
 \subsection{Proyección de textos}
 
-La proyección transforma cada documento en un vector de dimensión fija. Para que el experimento sea reproducible, se debe documentar el modelo usado, la dimensión del vector, si los embeddings fueron normalizados y el dispositivo de cómputo empleado.
+La proyección transforma cada documento en un vector de dimensión fija. Para el modelo \texttt{distiluse-base-multilingual-cased-v1}, la representación resultante tiene dimensión 512. En la implementación se generan embeddings como tensores y se normalizan, lo cual hace que la comparación geométrica entre textos sea más estable.
 
-\pendiente{Confirmar el modelo final de embeddings. En el código actual se observa una variante multilingüe de Sentence Transformers, pero esta sección debe reflejar la decisión final después de la refactorización.}
-
-\subsection{Pruebas unitarias de la proyección}
-
-La especificación solicita al menos dos pruebas unitarias para la etapa de proyección. Estas pruebas no deben limitarse a verificar que el código ejecuta; también deben validar propiedades esperadas de los embeddings.
-
-\begin{table}[H]
-\centering
-\caption{Pruebas unitarias propuestas para vectores empotrados.}
-\begin{tabular}{llll}
-\toprule
-Prueba & Objetivo & Entrada & Resultado esperado \\
-\midrule
-1 & Verificar dimensión fija & Dos textos distintos & Vectores con igual dimensión \\
-2 & Verificar normalización & Texto de prueba & Norma consistente si se normaliza \\
-\bottomrule
-\end{tabular}
-\end{table}
-
-\pendiente{Completar con resultados observados de las pruebas unitarias finales.}
+\pendiente{Agregar una breve comparación cualitativa o cuantitativa con modelos especializados en español si se decide incluir esa evidencia en el reporte final.}
 
 \subsection{Clasificación y resultados}
 
@@ -326,38 +342,33 @@ Métrica & Valor \\
 \midrule
 MAE & \pendiente{Completar} \\
 Exactitud & \pendiente{Completar} \\
-Modelo de embeddings & \pendiente{Completar} \\
-Dimensión del vector & \pendiente{Completar} \\
+Modelo de embeddings & \texttt{distiluse-base-multilingual-cased-v1} \\
+Dimensión del vector & 512 \\
 \bottomrule
 \end{tabular}
 \end{table}
 
-\section{Modelos de lenguaje grandes}
+\section{Modelos de lenguaje grandes (LLMs)}
 
-Los modelos de lenguaje grandes permiten abordar la clasificación de textos mediante instrucciones en lenguaje natural. En lugar de entrenar explícitamente un clasificador sobre características numéricas, se formula un prompt que describe la tarea y solicita una etiqueta. Esta aproximación es atractiva porque reduce la ingeniería de características, pero introduce otros retos: sensibilidad al prompt, costo computacional, consumo de memoria, tiempo de inferencia y dificultad para controlar la salida exacta.
+Los modelos de lenguaje grandes o \textit{Large Language Models} (LLMs) permiten abordar la clasificación de textos mediante instrucciones en lenguaje natural. En lugar de entrenar explícitamente un clasificador sobre características numéricas, se formula un prompt que describe la tarea y solicita una etiqueta. Esta aproximación reduce la ingeniería de características, pero introduce otros retos: sensibilidad al prompt, costo computacional, consumo de memoria, tiempo de inferencia y dificultad para controlar la salida exacta.
 
-En este trabajo se evalúan dos LLMs de Hugging Face. Ambos reciben instrucciones para clasificar cada texto como simple o complejo usando las clases \claseSimple{} y \claseCompleja{}. Para que la comparación sea justa, los modelos deben usar el mismo conjunto de textos, el mismo formato de salida esperado y, en el caso few-shot, los mismos ejemplos demostrativos.
+En este trabajo se evalúan dos LLMs de Hugging Face. Ambos reciben instrucciones para clasificar cada texto como simple o complejo usando las clases \claseSimple{} y \claseCompleja{}, respectivamente. Para que la comparación sea justa, los modelos deben usar el mismo conjunto de textos, el mismo formato de salida esperado y, en el caso few-shot, los mismos ejemplos demostrativos.
 
-\subsection{Modelos seleccionados}
+\subsection{SmolLM3}
 
-\begin{table}[H]
-\centering
-\caption{Modelos LLM considerados para clasificación.}
-\begin{tabular}{llll}
-\toprule
-Modelo & Repositorio & Configuración & Estado \\
-\midrule
-SmolLM3 & \href{https://huggingface.co/HuggingFaceTB/SmolLM3-3B}{HuggingFaceTB/SmolLM3-3B} & \pendiente{Completar} & \pendiente{Completar} \\
-Phi-4 mini & \href{https://huggingface.co/microsoft/Phi-4-mini-instruct}{microsoft/Phi-4-mini-instruct} & \pendiente{Completar} & \pendiente{Completar} \\
-\bottomrule
-\end{tabular}
-\end{table}
+SmolLM3 es un modelo instruccional de Hugging Face usado como una alternativa relativamente compacta para clasificación mediante prompts. En este proyecto se utiliza con un prompt que define el rol del modelo como clasificador de textos financieros, especifica las clases válidas y exige una respuesta en formato \texttt{ID:CLASE}. La elección de este formato permite evaluar automáticamente lotes de textos sin interpretar respuestas largas o ambiguas.
 
-\pendiente{Agregar detalles finales: precisión numérica usada, dispositivo, tamaño de lote, límite de tokens, estrategia de generación y tiempo aproximado de ejecución.}
+\pendiente{Agregar configuración final: precisión numérica, dispositivo, máximo de tokens, tamaño de lote y tiempo aproximado de inferencia.}
+
+\subsection{Phi-4 mini}
+
+Phi-4 mini instruct se evalúa como segundo LLM para comparar el comportamiento de otro modelo instruccional ante la misma tarea. Al igual que con SmolLM3, se mantiene el mismo esquema de clases, el mismo formato de salida y el mismo criterio de evaluación. Esta consistencia es importante porque, si los prompts o ejemplos cambian entre modelos, la comparación deja de medir únicamente diferencias entre modelos.
+
+\pendiente{Agregar configuración final: precisión numérica, dispositivo, máximo de tokens, tamaño de lote y tiempo aproximado de inferencia.}
 
 \subsection{Clasificación sin few-shot}
 
-En la configuración sin few-shot, el prompt describe la tarea y el formato de salida, pero no proporciona ejemplos etiquetados. Esta condición evalúa la capacidad del modelo para interpretar la instrucción desde su conocimiento previo.
+En la configuración sin few-shot, el prompt describe la tarea y el formato de salida, pero no proporciona ejemplos etiquetados. Esta condición evalúa la capacidad del modelo para interpretar la instrucción desde su conocimiento previo. Durante las pruebas se compararon variantes de prompt y se eligió la que produjo mejor adherencia al formato solicitado y mejores resultados preliminares.
 
 El formato de respuesta esperado debe ser estricto para facilitar la evaluación automática:
 
@@ -365,12 +376,12 @@ El formato de respuesta esperado debe ser estricto para facilitar la evaluación
 \texttt{ID:CLASE}
 \end{quote}
 
-Por ejemplo, \texttt{1:0} indica que el texto con identificador 1 fue clasificado como simple.
+Por ejemplo, \texttt{1:0} indica que el texto con identificador 1 fue clasificado como simple. En la implementación, cualquier línea que no cumpla el patrón exacto \texttt{ID:CLASE}, donde \texttt{CLASE} debe ser \texttt{0} o \texttt{1}, se registra como \texttt{-1}. Esta decisión evita detener la ejecución por respuestas mal formadas y, al mismo tiempo, impide que una salida inválida sea contada como correcta. Así, el resultado refleja tanto la capacidad de clasificar como la capacidad de seguir instrucciones.
 
 \begin{table}[H]
 \centering
 \caption{Ejemplos de clasificación sin few-shot.}
-\begin{tabular}{llll}
+\begin{tabular}{p{0.18\textwidth}p{0.44\textwidth}p{0.15\textwidth}p{0.15\textwidth}}
 \toprule
 Modelo & Texto & Etiqueta real & Predicción \\
 \midrule
@@ -381,13 +392,13 @@ Modelo & Texto & Etiqueta real & Predicción \\
 \end{tabular}
 \end{table}
 
-\pendiente{Reportar exactitud sobre el conjunto completo para cada LLM sin few-shot.}
+\pendiente{Los ejemplos se deben registrar manualmente a partir de las salidas de los notebooks, porque actualmente el código imprime ejemplos pero no los exporta como tabla.}
 
 \subsection{Clasificación con few-shot}
 
-El few-shot learning agrega ejemplos etiquetados dentro del prompt antes de solicitar la clasificación de nuevos textos. La hipótesis es que estos ejemplos ayudan al modelo a calibrar la definición operacional de simple y complejo en el dominio financiero. Para que el experimento sea comparable, los mismos ejemplos deben usarse en ambos modelos y en todas las corridas equivalentes.
+El few-shot learning agrega ejemplos etiquetados dentro del prompt antes de solicitar la clasificación de nuevos textos. La hipótesis es que estos ejemplos ayudan al modelo a calibrar la definición operacional de simple y complejo en el dominio financiero. Sin embargo, la literatura reciente también advierte que los LLMs pueden tener dificultades en escenarios zero-shot y few-shot cuando la tarea requiere razonamiento complejo o conocimiento específico del dominio \cite{chamieh2024llms}.
 
-La especificación solicita al menos tres configuraciones de few-shot. La Tabla \ref{tab:few-shot-configs} deja preparada la estructura para documentarlas.
+Para que el experimento sea comparable, los mismos ejemplos deben usarse en ambos modelos y en todas las configuraciones equivalentes. Además, los ejemplos usados como shots no deben volver a evaluarse como parte del conjunto de prueba de esa configuración.
 
 \begin{table}[H]
 \centering
@@ -397,49 +408,44 @@ La especificación solicita al menos tres configuraciones de few-shot. La Tabla 
 \toprule
 Configuración & Cantidad de ejemplos & Criterio de selección & Modelos evaluados \\
 \midrule
-FS-1 & \pendiente{Completar} & \pendiente{Completar} & \pendiente{Completar} \\
-FS-2 & \pendiente{Completar} & \pendiente{Completar} & \pendiente{Completar} \\
-FS-3 & \pendiente{Completar} & \pendiente{Completar} & \pendiente{Completar} \\
+FS-1 & \pendiente{Completar} & Mismos ejemplos para ambos modelos & SmolLM3, Phi-4 mini \\
+FS-2 & \pendiente{Completar} & Mismos ejemplos para ambos modelos & SmolLM3, Phi-4 mini \\
+FS-3 & \pendiente{Completar} & Mismos ejemplos para ambos modelos & SmolLM3, Phi-4 mini \\
 \bottomrule
 \end{tabular}
 \end{table}
 
-\pendiente{Agregar referencia bibliográfica del artículo sobre zero-shot y few-shot en evaluación de respuestas cortas mencionado por la especificación.}
-\pendiente{Reportar resultados con el conjunto completo para cada configuración y cada modelo.}
-
 \section{Prueba completa}
 
-La prueba completa integra todos los tratamientos definidos anteriormente. Según la especificación, deben realizarse 30 corridas con particiones aleatorias 80\% entrenamiento y 20\% prueba. En cada corrida, la partición debe mantenerse constante para todos los tratamientos, de modo que las diferencias observadas se atribuyan al modelo y no a variaciones en los datos evaluados.
+La prueba completa integra todos los tratamientos definidos anteriormente. Se realizarán 30 corridas con particiones aleatorias 80\% entrenamiento y 20\% prueba. En cada corrida, la partición debe mantenerse constante para todos los tratamientos, de modo que las diferencias observadas se atribuyan al modelo y no a variaciones en los datos evaluados.
 
-Los tratamientos mínimos a comparar son:
+Los tratamientos a comparar son:
 
 \begin{enumerate}
     \item Regresión logística con TF-IDF.
     \item Regresión logística con vectores empotrados.
-    \item LLM 1 sin few-shot y con few-shot.
-    \item LLM 2 sin few-shot y con few-shot.
+    \item SmolLM3 sin few-shot y con few-shot.
+    \item Phi-4 mini sin few-shot y con few-shot.
 \end{enumerate}
 
 \begin{table}[H]
 \centering
-\caption{Estructura de resultados para la prueba completa de 30 corridas.}
-\begin{tabular}{llll}
+\caption{Resultados para la prueba completa de 30 corridas.}
+\begin{tabular}{lllll}
 \toprule
-Tratamiento & Media & Desviación estándar & Tiempo promedio \\
+Tratamiento & MAE medio & Exactitud media & Desv. estándar & Tiempo promedio \\
 \midrule
-TF-IDF + regresión logística & \pendiente{Completar} & \pendiente{Completar} & \pendiente{Completar} \\
-Embeddings + regresión logística & \pendiente{Completar} & \pendiente{Completar} & \pendiente{Completar} \\
-LLM 1 & \pendiente{Completar} & \pendiente{Completar} & \pendiente{Completar} \\
-LLM 2 & \pendiente{Completar} & \pendiente{Completar} & \pendiente{Completar} \\
+TF-IDF + regresión logística & \pendiente{Completar} & \pendiente{Completar} & \pendiente{Completar} & \pendiente{Completar} \\
+Embeddings + regresión logística & \pendiente{Completar} & \pendiente{Completar} & \pendiente{Completar} & \pendiente{Completar} \\
+SmolLM3 & \pendiente{Completar} & \pendiente{Completar} & \pendiente{Completar} & \pendiente{Completar} \\
+Phi-4 mini & \pendiente{Completar} & \pendiente{Completar} & \pendiente{Completar} & \pendiente{Completar} \\
 \bottomrule
 \end{tabular}
 \end{table}
 
-\pendiente{Definir si la métrica principal de esta tabla será exactitud, MAE u otra medida adicional. Se recomienda reportar al menos exactitud y MAE para mantener conexión con las secciones previas.}
-
 \section{Prueba estadística}
 
-Después de obtener los resultados de las 30 corridas, se requiere una prueba estadística para determinar si las diferencias entre tratamientos son atribuibles a variación aleatoria o si existe evidencia de diferencias sistemáticas de rendimiento.
+Después de obtener los resultados de las 30 corridas, se realiza una prueba estadística para determinar si las diferencias entre tratamientos son atribuibles a variación aleatoria o si existe evidencia de diferencias sistemáticas de rendimiento.
 
 Dado que se comparan más de dos tratamientos sobre las mismas particiones, una opción natural es un ANOVA de medidas repetidas si se cumplen sus supuestos. En este diseño, cada corrida funciona como bloque o sujeto experimental, y cada tratamiento se evalúa sobre la misma partición. La hipótesis nula es que todos los tratamientos tienen el mismo rendimiento promedio:
 
@@ -453,42 +459,13 @@ La hipótesis alternativa indica que al menos un tratamiento tiene una media dis
 H_1: \exists i,j \; \mu_i \neq \mu_j.
 \end{equation}
 
-Si los supuestos de normalidad de residuos o esfericidad no se cumplen, se debe considerar una alternativa no paramétrica, como la prueba de Friedman. En caso de encontrar diferencias significativas, se recomienda aplicar una prueba post-hoc para identificar entre cuáles tratamientos aparecen dichas diferencias.
+Antes de aplicar ANOVA se deben revisar sus supuestos, especialmente normalidad de residuos y esfericidad. Si estos supuestos no se cumplen, se debe considerar una alternativa no paramétrica, como la prueba de Friedman. En caso de encontrar diferencias significativas, se recomienda aplicar una prueba post-hoc para identificar entre cuáles tratamientos aparecen dichas diferencias.
 
 \pendiente{Una vez ejecutadas las 30 corridas, agregar prueba de supuestos, estadístico, valor $p$, tamaño de efecto y análisis post-hoc si corresponde.}
 
-\section{Trazabilidad con la especificación}
-
-La Tabla \ref{tab:trazabilidad} resume cómo se cubren los puntos principales solicitados en la especificación. Esta tabla funciona como guía de lectura y como control interno para completar el reporte antes de la entrega final.
-
-\begin{table}[H]
-\centering
-\caption{Trazabilidad entre la especificación y el reporte.}
-\label{tab:trazabilidad}
-\begin{tabular}{p{0.35\textwidth}p{0.35\textwidth}p{0.18\textwidth}}
-\toprule
-Requisito & Sección del reporte & Estado \\
-\midrule
-Implementación de regresión logística basada en perceptrón & Regresión logística & En desarrollo \\
-Pruebas unitarias de funciones modificadas & Pruebas unitarias & Pendiente \\
-Datos sintéticos linealmente y no linealmente separables & Resultados con datos sintéticos & Pendiente de resultados finales \\
-Promedio y desviación estándar en 10 corridas & Resultados promedio para 10 corridas & Pendiente de resultados finales \\
-Regresión logística con TF-IDF & Regresión logística con TF-IDF & En desarrollo \\
-Preprocesamiento con stopwords y lematización & Preprocesamiento & En desarrollo \\
-Regresión logística con vectores empotrados & Regresión logística con vectores empotrados & En desarrollo \\
-Pruebas unitarias de proyección empotrada & Pruebas unitarias de la proyección & Pendiente \\
-Dos LLMs para clasificación & Modelos de lenguaje grandes & En desarrollo \\
-Tres ejemplos de clasificación por LLM & Clasificación sin few-shot & Pendiente \\
-Tres configuraciones few-shot & Clasificación con few-shot & Pendiente \\
-Prueba completa con 30 corridas 80/20 & Prueba completa & Pendiente \\
-Prueba estadística justificada & Prueba estadística & Pendiente \\
-\bottomrule
-\end{tabular}
-\end{table}
-
 \section{Conclusiones}
 
-Este trabajo compara representaciones clásicas, representaciones semánticas y modelos generativos instruidos para la clasificación de complejidad textual en español financiero. La estructura experimental permite observar no solo qué modelo obtiene mejores métricas, sino también qué tipo de representación resulta más adecuada para un dominio especializado y un conjunto de datos bilingüísticamente sensible por su morfología y vocabulario técnico.
+Este trabajo compara representaciones clásicas, representaciones semánticas y modelos generativos instruidos para la clasificación de complejidad textual en español financiero. La estructura experimental permite observar no solo qué modelo obtiene mejores métricas, sino también qué tipo de representación resulta más adecuada para un dominio especializado y sensible a decisiones lingüísticas como tokenización, eliminación de palabras vacías y lematización.
 
 \pendiente{Redactar las conclusiones finales cuando estén completos los resultados de TF-IDF, embeddings, LLMs, few-shot, prueba completa y prueba estadística.}
 

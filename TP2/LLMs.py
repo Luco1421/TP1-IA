@@ -1,4 +1,5 @@
-from TP2 import train_model, BERT_train, Batcher
+import TP2
+from TP2 import train_model, BERT_train, Batcher, RATIO_SPLIT_4C
 
 from transformers import AutoModelForCausalLM, AutoTokenizer
 
@@ -111,3 +112,39 @@ class TestLLMUtils :
             shots = self.batcher.set_shots(dataset.corpus[:i], dataset.labels[:i])
             accuracy = self.test(fun_model, batches, labels, shots)
             print(f"{name} with {i} shots - Accuracy: {accuracy}")
+
+    def test_all_LLM(self, name, fun_model, dataset, shot_configs):
+        #N = int(len(dataset.corpus) * (1 - TP2.RATIO_SPLIT_4C))
+        N = 10
+
+        results = {}
+
+        results[0] = []
+        for shots in shot_configs:
+            results[shots] = []
+
+        for i in range(2):
+            indexes = list(range(len(dataset.corpus)))
+            random.seed(i)
+            random.shuffle(indexes)
+            shuffle_corpus = [dataset.corpus[idx] for idx in indexes]
+            shuffle_labels = [dataset.labels[idx] for idx in indexes]
+
+            acc_zero = self.test(fun_model, shuffle_corpus[N:], shuffle_labels[N:], shots="")
+            results[0].append(acc_zero)
+
+            for shots_count in shot_configs:
+                shots = self.batcher.set_shots(shuffle_corpus[:shots_count],shuffle_labels[:shots_count])
+                acc_i = self.test(fun_model, shuffle_corpus[N:], shuffle_labels[N:], shots)
+                results[shots_count].append(acc_i)
+
+        acc_tensor = torch.tensor(results[0])
+        print(f"{name} without shots: average = {acc_tensor.mean().item():.4f}, std = {acc_tensor.std().item():.4f}")
+        for shots_count, acc_list in results.items():
+            if shots_count == 0:
+                continue
+            acc_tensor = torch.tensor(acc_list)
+            print(f"{name} with {shots_count} shots - average = {acc_tensor.mean().item():.4f}, std = {acc_tensor.std().item():.4f}")
+        print("-" * 50)
+
+        return results
