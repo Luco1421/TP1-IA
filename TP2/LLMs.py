@@ -115,7 +115,6 @@ class TestLLMUtils :
 
     def test_all_LLM(self, name, fun_model, dataset, shot_configs):
         #N = int(len(dataset.corpus) * (1 - TP2.RATIO_SPLIT_4C))
-        N = 10
 
         results = {}
 
@@ -129,13 +128,15 @@ class TestLLMUtils :
             random.shuffle(indexes)
             shuffle_corpus = [dataset.corpus[idx] for idx in indexes]
             shuffle_labels = [dataset.labels[idx] for idx in indexes]
+            N = len(shuffle_corpus) - 10
 
-            acc_zero = self.test(fun_model, shuffle_corpus[N:], shuffle_labels[N:], shots="")
+            test_batches = self.batcher.set_batches(shuffle_corpus[N:])
+            acc_zero = self.test(fun_model, test_batches, shuffle_labels[N:], shots="")
             results[0].append(acc_zero)
 
             for shots_count in shot_configs:
                 shots = self.batcher.set_shots(shuffle_corpus[:shots_count],shuffle_labels[:shots_count])
-                acc_i = self.test(fun_model, shuffle_corpus[N:], shuffle_labels[N:], shots)
+                acc_i = self.test(fun_model, test_batches, shuffle_labels[N:], shots)
                 results[shots_count].append(acc_i)
 
         acc_tensor = torch.tensor(results[0])
