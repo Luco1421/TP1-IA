@@ -11,7 +11,7 @@
 
 ## Comparacion TF-IDF
 
-- El archivo final esta en `TFIDF/compareTFIDF.py`.
+- El archivo final actual esta en `compareTFIDF.py`.
 - No tocarlo salvo que el usuario lo pida; el usuario dijo que le gusta como quedo.
 - El estilo deseado es exploratorio, simple, con prints y parecido al resto del proyecto, no codigo de produccion.
 - Configuracion actual observada:
@@ -46,8 +46,7 @@
 
 ## Comparacion de embeddings
 
-- El archivo nuevo esta en `Embeddings/compareEmbeddings.py`.
-- Se creo despues de moverlo desde `TFIDF`; la ubicacion correcta actual es `Embeddings/compareEmbeddings.py`.
+- El archivo actual esta en `compareEmbeddings.py`.
 - Debe parecerse en estilo a `compareTFIDF.py`.
 - Modelos comparados:
   - actual de `TP2.py`: `sentence-transformers/distiluse-base-multilingual-cased-v1`
@@ -58,11 +57,63 @@
 - Para BERT/BETO/RoBERTa, usar `AutoModel + AutoTokenizer` y tomar `outputs.pooler_output`.
 - Se elimino `mean_pooling`; el usuario cuestiono si era necesario y se simplifico usando `pooler_output`.
 - Codigo actual validado con:
-  - `.\.venv\Scripts\python.exe -m py_compile Embeddings\compareEmbeddings.py`
+  - `.\.venv\Scripts\python.exe -m py_compile compareEmbeddings.py`
 - No se ejecuto completo porque puede descargar modelos de Hugging Face y tardar bastante.
 - Para correrlo:
-  - `.\.venv\Scripts\python.exe Embeddings\compareEmbeddings.py`
+  - `.\.venv\Scripts\python.exe compareEmbeddings.py`
 - Si falla por red o descarga de modelos, pedir permiso de ejecucion con escalacion.
+
+## Documentacion y prueba final 30 corridas
+
+- Documento principal: `documentation/docu.tex`.
+- El documento ya tiene secciones redactadas para:
+  - justificacion de TF-IDF y preprocesamiento;
+  - justificacion de embeddings como representacion alternativa;
+  - LLMs zero-shot/few-shot;
+  - prueba completa;
+  - prueba estadistica.
+- No se pudo compilar LaTeX en este entorno porque no hay `pdflatex`/`latexmk` disponible.
+- Las tablas quedaron preparadas para completar manana con:
+  - MAE promedio;
+  - exactitud promedio;
+  - desviacion estandar del MAE;
+  - desviacion estandar de exactitud;
+  - vocabulario promedio en TF-IDF;
+  - modelo/dimension para embeddings;
+  - resultados por corrida para prueba estadistica.
+- Se agrego una estructura recomendada para registrar resultados por corrida:
+  - seed;
+  - tratamiento;
+  - MAE;
+  - exactitud;
+  - observaciones.
+- Hay pendientes intencionales con `\pendiente{...}` para llenar cuando se corran los experimentos reales.
+
+## Script final para manana
+
+- Archivo nuevo: `compareFinal30.py`.
+- No modifica `TP2.py`, `LLMs.py` ni notebooks.
+- Reutiliza de `TP2.py`:
+  - `DEVICE`;
+  - `Dataset`;
+  - `TrainRegression`;
+  - `train_test_split`.
+- Ejecuta 30 corridas con particion estratificada 80/20:
+  - `TF-IDF + regresion logistica`;
+  - `embeddings + regresion logistica`.
+- Usa `SentenceTransformer("sentence-transformers/distiluse-base-multilingual-cased-v1")` para embeddings.
+- Imprime por seed:
+  - indices de test;
+  - resultado TF-IDF;
+  - resultado embeddings.
+- Guarda salidas utiles para la prueba estadistica:
+  - `output/final_30_lr_results.csv`;
+  - `output/final_30_partitions.csv`.
+- El CSV `final_30_lr_results.csv` permite comparar tratamientos por seed usando `mae_calibrado` y `accuracy_calibrado`.
+- El CSV `final_30_partitions.csv` sirve para que las corridas con LLMs usen los mismos indices de test si se quiere una comparacion pareada mas justa.
+- Validado sintacticamente con:
+  - `.\.venv\Scripts\python.exe -m py_compile compareFinal30.py`
+- No se ejecuto la corrida completa porque el usuario la correra manana.
 
 ## Decisiones tecnicas sobre embeddings
 

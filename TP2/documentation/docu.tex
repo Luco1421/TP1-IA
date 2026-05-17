@@ -267,38 +267,45 @@ En este proyecto, TF-IDF se usa como etapa de extracción de características. L
 
 \subsection{Preprocesamiento}
 
-La configuración final usada en el clasificador TF-IDF consiste en convertir el texto a minúsculas, tokenizar mediante la expresión regular \texttt{[a-záéíóúñü]+}, eliminar \textit{stopwords} en español provistas por NLTK y lematizar los tokens restantes con Simplemma. Esta configuración fue elegida como línea base del proyecto porque mantiene el procesamiento simple, reproducible y suficientemente adecuado para texto en español sin introducir una dependencia pesada en esta etapa.
+Antes de fijar una configuración para TF-IDF se realizó una comparación exploratoria entre varias estrategias de preprocesamiento. El objetivo no era solamente obtener una métrica, sino entender qué decisiones lingüísticas afectaban la representación del texto financiero. En particular, se compararon tokenizadores basados en NLTK, expresiones regulares, spaCy y Stanza; además, se probaron lematizadores basados en WordNet, Simplemma, spaCy y Stanza.
 
-La comparación cualitativa entre alternativas de preprocesamiento todavía se documentará por separado. En particular, se analizarán variantes con y sin lematización, además de configuraciones basadas en Simplemma, spaCy y Stanza. El objetivo de esa comparación no es cambiar la descripción del clasificador actual, sino justificar con evidencia por qué la configuración usada resulta razonable frente a otras posibilidades.
+Una decisión importante fue probar expresiones regulares con y sin números. Para ello se usaron dos patrones principales: \texttt{[\textasciicircum\textbackslash W\_]+}, que conserva secuencias alfanuméricas, y \texttt{[a-záéíóúñü]+}, que conserva solamente letras. Esta diferencia es relevante porque los textos financieros contienen porcentajes, montos, fechas y referencias numéricas; sin embargo, también existe el riesgo de que los números introduzcan ruido o vocabulario demasiado específico para un conjunto de datos pequeño. Por esta razón, no se asumió de antemano que conservar números fuera mejor: se evaluaron ambas opciones.
+
+La comparación incluyó configuraciones permisivas, que conservan símbolos como \texttt{\$} o \texttt{\%}, y configuraciones más restrictivas, que eliminan ese tipo de marcas. También se evaluaron variantes con y sin números. Esta exploración permitió observar que el mejor preprocesamiento no depende únicamente de usar una herramienta más sofisticada: en un corpus pequeño, una representación más simple puede generalizar igual o mejor que una canalización pesada si reduce ruido y mantiene los términos relevantes.
 
 \begin{table}[H]
 \centering
-\caption{Estructura para comparar alternativas de preprocesamiento.}
-\begin{tabular}{llll}
+\caption{Alternativas evaluadas para el preprocesamiento de TF-IDF.}
+\begin{tabular}{p{0.30\textwidth}p{0.22\textwidth}p{0.22\textwidth}p{0.18\textwidth}}
 \toprule
-Configuración & Tokenización & Lematización & Observaciones cualitativas \\
+Configuración & Tokenización & Lematización & Propósito \\
 \midrule
-Regex + Simplemma & Regex propia & Simplemma & \pendiente{Completar} \\
-Regex sin lematización & Regex propia & No aplica & \pendiente{Completar} \\
-spaCy & \pendiente{Completar} & \pendiente{Completar} & \pendiente{Completar} \\
-Stanza & \pendiente{Completar} & \pendiente{Completar} & \pendiente{Completar} \\
+NLTK modo estándar & \texttt{word\_tokenize} & WordNet & Comparar contra tokenización lingüística básica. \\
+Regex con números & \texttt{[\textasciicircum\textbackslash W\_]+} & WordNet o Simplemma & Medir si cantidades y referencias numéricas aportan información. \\
+Regex sin números & \texttt{[a-záéíóúñü]+} & WordNet o Simplemma & Reducir ruido numérico y conservar vocabulario léxico. \\
+spaCy modo estándar & Tokenización de spaCy & spaCy & Evaluar una canalización lingüística robusta. \\
+spaCy modo permisivo & Tokenización de spaCy & spaCy & Conservar símbolos potencialmente financieros. \\
+Stanza modo estándar & Tokenización de Stanza & Stanza & Comparar con lematización neuronal en español. \\
+Stanza modo permisivo & Tokenización de Stanza & Stanza & Evaluar si conservar más marcas mejora la señal. \\
 \bottomrule
 \end{tabular}
 \end{table}
+
+Para evitar que la comparación dependiera de una única partición del conjunto de datos, cada alternativa se evaluó con varias semillas. En cada semilla se entrenó la misma regresión logística y se compararon dos escenarios: una tasa de aprendizaje fija y una tasa de aprendizaje calibrada con Optuna. La calibración no cambia el descriptor TF-IDF; solamente busca que cada representación sea evaluada con un valor razonable de \texttt{alpha}. De esta forma, la comparación distingue mejor entre la calidad de la representación textual y una mala elección accidental de la tasa de aprendizaje.
+
+En las pruebas reducidas realizadas, la variante \texttt{nltk modo regex sin numeros} obtuvo el mejor MAE promedio calibrado. Esto sugiere que, para este subconjunto del corpus FEINA, eliminar números produjo una representación más estable que conservarlos. La interpretación debe ser prudente: no significa que los números sean irrelevantes en finanzas, sino que en este experimento concreto la regresión logística con TF-IDF aprovechó mejor el vocabulario léxico que las marcas numéricas.
 
 \subsection{Construcción de descriptores}
 
 Una vez preprocesados los documentos, \texttt{TfidfVectorizer} aprende el vocabulario del corpus y construye una matriz documento-término. Cada fila representa un texto y cada columna representa un término del vocabulario aprendido. El valor de cada celda indica la importancia relativa del término en ese documento.
 
-Para examinar cualitativamente esta representación, se seleccionarán textos simples y complejos y se reportarán los términos con mayor peso TF-IDF. Esto permitirá verificar si el descriptor captura vocabulario relevante para complejidad financiera o si queda dominado por términos poco informativos.
-
-\pendiente{Insertar ejemplos cualitativos de términos con mayor peso TF-IDF para textos simples y complejos.}
+Para examinar cualitativamente esta representación, se seleccionarán textos simples y complejos y se reportarán los términos con mayor peso TF-IDF. Esto permitirá verificar si el descriptor captura vocabulario relevante para complejidad financiera o si queda dominado por términos poco informativos. En el caso de las variantes con números, una parte del vocabulario puede corresponder a cantidades, porcentajes o referencias aisladas que no necesariamente distinguen complejidad textual. Por eso se consideró razonable elegir una configuración sin números para la comparación principal, manteniendo el análisis de variantes como evidencia de diseño experimental.
 
 \subsection{Clasificación y resultados}
 
 El conjunto FEINA se procesa usando sus columnas \texttt{Segment} y \texttt{Proposal}. En la implementación actual, cada \texttt{Segment} se agrega al corpus con etiqueta \claseCompleja{}, y cada \texttt{Proposal} se agrega con etiqueta \claseSimple{}. Así, cada par del archivo aporta dos muestras al clasificador: una compleja y una simple.
 
-Después de construir la matriz TF-IDF, se entrena la regresión logística usando esas etiquetas binarias. El resultado debe reportarse sobre el conjunto de prueba definido para el experimento, indicando al menos MAE y exactitud.
+Después de construir la matriz TF-IDF, se entrena la regresión logística usando esas etiquetas binarias. La comparación se realizó manteniendo constante el clasificador y variando únicamente el preprocesamiento. Esta decisión es importante: si se cambiara al mismo tiempo el clasificador, la tokenización y la calibración del entrenamiento, sería más difícil atribuir las diferencias de rendimiento a una causa concreta.
 
 \begin{table}[H]
 \centering
@@ -307,10 +314,12 @@ Después de construir la matriz TF-IDF, se entrena la regresión logística usan
 \toprule
 Métrica & Valor \\
 \midrule
-MAE & \pendiente{Completar} \\
-Exactitud & \pendiente{Completar} \\
-Tamaño del vocabulario & \pendiente{Completar} \\
-Configuración de preprocesamiento & Regex + NLTK stopwords + Simplemma \\
+MAE promedio & \pendiente{Completar} \\
+Exactitud promedio & \pendiente{Completar} \\
+Desviación estándar del MAE & \pendiente{Completar} \\
+Desviación estándar de exactitud & \pendiente{Completar} \\
+Tamaño promedio del vocabulario & \pendiente{Completar} \\
+Configuración de preprocesamiento & Regex sin números + NLTK stopwords + lematización \\
 \bottomrule
 \end{tabular}
 \end{table}
@@ -319,19 +328,40 @@ Configuración de preprocesamiento & Regex + NLTK stopwords + Simplemma \\
 
 Los vectores empotrados representan textos en un espacio numérico denso, donde la cercanía geométrica intenta reflejar similitud semántica. A diferencia de TF-IDF, que produce vectores dispersos basados en conteos ponderados, los embeddings capturan información distribuida aprendida previamente a partir de grandes corpus.
 
-En este trabajo se usa \texttt{sentence-transformers/distiluse-base-multilingual-cased-v1} para proyectar los textos de FEINA a un espacio vectorial. Posteriormente, esos vectores se clasifican con la misma regresión logística implementada en la primera parte. Esto permite comparar una representación léxica clásica contra una representación semántica densa manteniendo constante el clasificador.
+En este trabajo se compararon varias formas de proyectar los textos de FEINA a un espacio vectorial. Posteriormente, esos vectores se clasificaron con la misma regresión logística implementada en la primera parte. Esta separación mantiene constante el clasificador y permite analizar si las diferencias provienen de la representación del texto.
 
-El uso de un modelo multilingüe tiene ventajas y riesgos. Como ventaja, permite trabajar directamente con español y otros idiomas sin entrenar un modelo desde cero. Como riesgo, parte de su capacidad se distribuye entre varios idiomas, por lo que podría perder precisión frente a modelos especializados en español, como BETO o variantes de RoBERTa entrenadas para este idioma. La decisión final debe justificarse empíricamente: si el modelo multilingüe produce mejores resultados o un balance más conveniente entre rendimiento y costo computacional, su uso queda justificado para este proyecto.
+La comparación incluyó cuatro modelos: \texttt{sentence-transformers/distiluse-base-multilingual-cased-v1}, \texttt{bert-base-multilingual-cased}, \texttt{dccuchile/bert-base-spanish-wwm-cased} (BETO) y una variante de RoBERTa. La intención fue probar distintas formas razonables de obtener vectores densos para los textos y observar cuál funcionaba mejor al entrenar la misma regresión logística.
 
 \subsection{Proyección de textos}
 
-La proyección transforma cada documento en un vector de dimensión fija. Para el modelo \texttt{distiluse-base-multilingual-cased-v1}, la representación resultante tiene dimensión 512. En la implementación se generan embeddings como tensores y se normalizan, lo cual hace que la comparación geométrica entre textos sea más estable.
+La proyección transforma cada documento en un vector de dimensión fija. La idea central es que textos con significado parecido queden representados por vectores cercanos, incluso si no comparten exactamente las mismas palabras. Esto es útil para el proyecto porque la complejidad textual no depende solo de términos aislados: también influyen la forma de expresar una idea, la densidad conceptual y el contexto semántico de la oración.
 
-\pendiente{Agregar una breve comparación cualitativa o cuantitativa con modelos especializados en español si se decide incluir esa evidencia en el reporte final.}
+Esta representación se evaluó como una alternativa a TF-IDF. Mientras TF-IDF se basa en frecuencia de términos y puede funcionar muy bien cuando ciertas palabras distinguen clases, los embeddings permiten aprovechar conocimiento aprendido previamente por modelos entrenados en grandes corpus. Por ejemplo, dos textos financieros pueden usar vocabulario distinto pero expresar una idea parecida; una representación densa puede capturar parte de esa relación mejor que una bolsa de palabras. Por eso ambos enfoques se comparan: no porque uno sea una extensión directa del otro, sino porque representan dos maneras distintas de alimentar el mismo clasificador.
+
+Por esta razón se probaron varias alternativas de embeddings. El modelo \texttt{distiluse-base-multilingual-cased-v1} fue relevante porque está diseñado para producir embeddings de oración directamente. BERT, BETO y RoBERTa se usaron como alternativas contextuales basadas en transformadores, con el fin de revisar si otra representación densa podía producir mejores resultados con la misma regresión logística.
+
+\begin{table}[H]
+\centering
+\caption{Modelos evaluados para generar vectores empotrados.}
+\begin{tabular}{p{0.35\textwidth}p{0.22\textwidth}p{0.32\textwidth}}
+\toprule
+Modelo & Dimensión & Razón para evaluarlo \\
+\midrule
+\texttt{distiluse-base-multilingual-cased-v1} & 512 & Modelo preparado para embeddings de oración. \\
+\texttt{bert-base-multilingual-cased} & 768 & Alternativa contextual basada en BERT. \\
+\texttt{dccuchile/bert-base-spanish-wwm-cased} & 768 & Alternativa contextual basada en BETO. \\
+RoBERTa español & 768 & Alternativa contextual basada en RoBERTa. \\
+\bottomrule
+\end{tabular}
+\end{table}
 
 \subsection{Clasificación y resultados}
 
-Una vez obtenidos los embeddings, se entrena la regresión logística sobre esos vectores. El análisis debe comparar estos resultados contra TF-IDF, identificando si la representación semántica mejora la clasificación o si el tamaño del conjunto, el dominio financiero o la complejidad de las frases limitan el beneficio.
+Una vez obtenidos los embeddings, se entrena la regresión logística sobre esos vectores. En todos los casos se conserva el mismo protocolo: se usan las mismas etiquetas, particiones estratificadas, varias semillas y la misma calibración de \texttt{alpha}. Por tanto, el experimento puede interpretarse como una comparación entre representaciones densas del texto, no como una comparación entre clasificadores distintos.
+
+Las pruebas exploratorias mostraron que BETO puede ofrecer una señal competitiva en esta configuración reducida. Sin embargo, el modelo de \texttt{SentenceTransformer} sigue siendo relevante porque produce directamente embeddings de oración y es simple de integrar. Esto hace que sea una alternativa razonable cuando se busca una representación semántica robusta sin entrenar un modelo profundo desde cero.
+
+La conclusión metodológica es que la elección de embeddings no se hizo por preferencia arbitraria, sino mediante pruebas controladas. Se entrenó la misma regresión logística sobre cada representación para observar qué tipo de vector describe mejor los textos de FEINA para la tarea de complejidad.
 
 \begin{table}[H]
 \centering
@@ -340,10 +370,12 @@ Una vez obtenidos los embeddings, se entrena la regresión logística sobre esos
 \toprule
 Métrica & Valor \\
 \midrule
-MAE & \pendiente{Completar} \\
-Exactitud & \pendiente{Completar} \\
-Modelo de embeddings & \texttt{distiluse-base-multilingual-cased-v1} \\
-Dimensión del vector & 512 \\
+MAE promedio & \pendiente{Completar} \\
+Exactitud promedio & \pendiente{Completar} \\
+Desviación estándar del MAE & \pendiente{Completar} \\
+Desviación estándar de exactitud & \pendiente{Completar} \\
+Modelo de embeddings & \pendiente{Completar con el modelo seleccionado en la prueba final} \\
+Dimensión del vector & \pendiente{Completar según el modelo seleccionado} \\
 \bottomrule
 \end{tabular}
 \end{table}
@@ -419,6 +451,8 @@ FS-3 & \pendiente{Completar} & Mismos ejemplos para ambos modelos & SmolLM3, Phi
 
 La prueba completa integra todos los tratamientos definidos anteriormente. Se realizarán 30 corridas con particiones aleatorias 80\% entrenamiento y 20\% prueba. En cada corrida, la partición debe mantenerse constante para todos los tratamientos, de modo que las diferencias observadas se atribuyan al modelo y no a variaciones en los datos evaluados.
 
+Para registrar los resultados de forma suficiente para la prueba estadística, cada corrida debe conservar al menos el identificador de la semilla, el tratamiento evaluado, el MAE y la exactitud obtenida. Si se desea reproducir exactamente las particiones con LLMs, también conviene conservar los índices usados como prueba en cada semilla.
+
 Los tratamientos a comparar son:
 
 \begin{enumerate}
@@ -433,12 +467,26 @@ Los tratamientos a comparar son:
 \caption{Resultados para la prueba completa de 30 corridas.}
 \begin{tabular}{lllll}
 \toprule
-Tratamiento & MAE medio & Exactitud media & Desv. estándar & Tiempo promedio \\
+Tratamiento & MAE promedio & Exactitud promedio & Desv. estándar MAE & Desv. estándar exactitud \\
 \midrule
 TF-IDF + regresión logística & \pendiente{Completar} & \pendiente{Completar} & \pendiente{Completar} & \pendiente{Completar} \\
 Embeddings + regresión logística & \pendiente{Completar} & \pendiente{Completar} & \pendiente{Completar} & \pendiente{Completar} \\
 SmolLM3 & \pendiente{Completar} & \pendiente{Completar} & \pendiente{Completar} & \pendiente{Completar} \\
 Phi-4 mini & \pendiente{Completar} & \pendiente{Completar} & \pendiente{Completar} & \pendiente{Completar} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{table}[H]
+\centering
+\caption{Estructura recomendada para registrar resultados por corrida.}
+\begin{tabular}{lllll}
+\toprule
+Semilla & Tratamiento & MAE & Exactitud & Observaciones \\
+\midrule
+\pendiente{Completar} & \pendiente{Completar} & \pendiente{Completar} & \pendiente{Completar} & \pendiente{Completar} \\
+\pendiente{Completar} & \pendiente{Completar} & \pendiente{Completar} & \pendiente{Completar} & \pendiente{Completar} \\
+\pendiente{Completar} & \pendiente{Completar} & \pendiente{Completar} & \pendiente{Completar} & \pendiente{Completar} \\
 \bottomrule
 \end{tabular}
 \end{table}
