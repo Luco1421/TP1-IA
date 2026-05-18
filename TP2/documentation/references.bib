@@ -19,6 +19,14 @@
   howpublished = {\url{https://tecnube1-my.sharepoint.com/personal/sacalderon_itcr_ac_cr/_layouts/15/onedrive.aspx?viewid=cfe0f8c2%2Dbcae%2D4a0c%2D95bb%2Dec07593bbb11&id=%2Fpersonal%2Fsacalderon%5Fitcr%5Fac%5Fcr%2FDocuments%2FTEC%2FInteligencia%5FArtificial%5FI%5FSemestre%5F2026%2FPublico%2FApuntes%2FClasificacion%2Epdf&parent=%2Fpersonal%2Fsacalderon%5Fitcr%5Fac%5Fcr%2FDocuments%2FTEC%2FInteligencia%5FArtificial%5FI%5FSemestre%5F2026%2FPublico%2FApuntes}},
 }
 
+@misc{nlp2026,
+  author  = {Calderón, Saul},
+  title   = {Introduccion al Procesamiento del Lenguaje
+Natural},
+  year    = {2022},
+  howpublished = {\url{https://tecnube1-my.sharepoint.com/:b:/r/personal/sacalderon_itcr_ac_cr/Documents/TEC/Inteligencia_Artificial_I_Semestre_2026/Publico/Apuntes/NLP_intro.pdf?csf=1&web=1&e=3FTpny}},
+}
+
 @article{FEINA,
   author    = {Nelson Perez-Rojas and Saul Calderon-Ramirez and Martin Solis-Salazar and Mario Romero-Sandoval and Monica Arias-Monge and Horacio Saggion},
   title     = {A Novel Spanish Dataset for Financial Education Text Simplification Targeting Visually Impaired Individuals},
@@ -31,6 +39,7 @@
   publisher = {IEEE}
 }
 
+
 @article{rosenblatt1958perceptron,
   author  = {Frank Rosenblatt},
   title   = {The Perceptron: A Probabilistic Model for Information Storage and Organization in the Brain},
@@ -41,6 +50,7 @@
   pages   = {386--408},
   doi     = {10.1037/h0042519}
 }
+
 
 @article{cox1958binary,
   author  = {D. R. Cox},
@@ -62,4 +72,71 @@
   publisher = {Association for Computational Linguistics},
   url       = {https://aclanthology.org/2024.bea-1.25/},
   pages     = {309--315}
+}
+
+@article{Raskutti2013,
+  author = {Raskutti, Garvesh and Wainwright, Martin J. and Yu, Bin},
+  title = {Early stopping and non-parametric regression: An optimal data-dependent stopping rule},
+  journal = {arXiv preprint arXiv:1306.3574},
+  year = {2013},
+  doi = {10.48550/arXiv.1306.3574},
+  url = {https://doi.org/10.48550/arXiv.1306.3574}
+}
+
+@inproceedings{choi2022early,
+    title = "Early Stopping Based on Unlabeled Samples in Text Classification",
+    author = "Choi, HongSeok  and
+      Choi, Dongha  and
+      Lee, Hyunju",
+    editor = "Muresan, Smaranda  and
+      Nakov, Preslav  and
+      Villavicencio, Aline",
+    booktitle = "Proceedings of the 60th Annual Meeting of the Association for Computational Linguistics (Volume 1: Long Papers)",
+    month = may,
+    year = "2022",
+    address = "Dublin, Ireland",
+    publisher = "Association for Computational Linguistics",
+    url = "https://aclanthology.org/2022.acl-long.52/",
+    doi = "10.18653/v1/2022.acl-long.52",
+    pages = "708--718",
+    abstract = "Early stopping, which is widely used to prevent overfitting, is generally based on a separate validation set. However, in low resource settings, validation-based stopping can be risky because a small validation set may not be sufficiently representative, and the reduction in the number of samples by validation split may result in insufficient samples for training. In this study, we propose an early stopping method that uses unlabeled samples. The proposed method is based on confidence and class distribution similarities. To further improve the performance, we present a calibration method to better estimate the class distribution of the unlabeled samples. The proposed method is advantageous because it does not require a separate validation set and provides a better stopping point by using a large unlabeled set. Extensive experiments are conducted on five text classification datasets and several stop-methods are compared. Our results show that the proposed model even performs better than using an additional validation set as well as the existing stop-methods, in both balanced and imbalanced data settings. Our code is available at \url{https://github.com/DMCB-GIST/BUS-stop}."
+}
+
+@article{umer2023impact,
+  author    = {Umer, Muhammad and Imtiaz, Zainab and Ahmad, Muhammad and Nappi, Michele and Medaglia, Carlo and Choi, Gyu Sang and Mehmood, Arif},
+  title     = {Impact of convolutional neural network and FastText embedding on text classification},
+  journal   = {Multimedia Tools and Applications},
+  volume    = {82},
+  number    = {4},
+  pages     = {5569--5585},
+  year      = {2023},
+  doi       = {10.1007/s11042-022-13459-x},
+  url       = {https://doi.org/10.1007/s11042-022-13459-x}
+}
+
+@inproceedings{jawahar2019bert,
+    title = "What Does {BERT} Learn about the Structure of Language?",
+    author = "Jawahar, Ganesh  and
+      Sagot, Beno{\^i}t  and
+      Seddah, Djam{\'e}",
+    editor = "Korhonen, Anna  and
+      Traum, David  and
+      M{\`a}rquez, Llu{\'i}s",
+    booktitle = "Proceedings of the 57th Annual Meeting of the Association for Computational Linguistics",
+    month = jul,
+    year = "2019",
+    address = "Florence, Italy",
+    publisher = "Association for Computational Linguistics",
+    url = "https://aclanthology.org/P19-1356/",
+    doi = "10.18653/v1/P19-1356",
+    pages = "3651--3657",
+    abstract = "BERT is a recent language representation model that has surprisingly performed well in diverse language understanding benchmarks. This result indicates the possibility that BERT networks capture structural information about language. In this work, we provide novel support for this claim by performing a series of experiments to unpack the elements of English language structure learned by BERT. Our findings are fourfold. BERT{'}s phrasal representation captures the phrase-level information in the lower layers. The intermediate layers of BERT compose a rich hierarchy of linguistic information, starting with surface features at the bottom, syntactic features in the middle followed by semantic features at the top. BERT requires deeper layers while tracking subject-verb agreement to handle long-term dependency problem. Finally, the compositional scheme underlying BERT mimics classical, tree-like structures."
+}
+
+@misc{schmidt2017gradientdescent,
+  author = {Schmidt, Mark},
+  title = {Convergence of Gradient Descent},
+  year = {2017},
+  howpublished = {\url{https://www.cs.ubc.ca/~schmidtm/Courses/540-W18/L4.pdf}},
+  note = {Lecture notes, University of British Columbia}
 }
