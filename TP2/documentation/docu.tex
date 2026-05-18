@@ -507,8 +507,8 @@ Después de construir la matriz TF-IDF, se entrena con la regresión logística 
 \toprule
 Métrica & Valor \\
 \midrule
-MAE promedio & 0.48475414514541626 \\
-Precisión promedio & 0.557716429233551 \\
+MAE promedio & 0.48039379715919495 \\
+Precisión promedio & 0.5740275979042053 \\
 \bottomrule
 \end{tabular}
 \caption{Resultados de regresión logística con TF-IDF con la evaluación del $30\%$ del dataset.}
@@ -644,43 +644,43 @@ Durante las pruebas se compararon variantes de prompt y se eligió la que produj
 
 El prompt se compone de dos partes, el contexto y los textos. El objetivo del contexto es proporcionarle la información y las instrucciones específicas que debe seguir a fin de realizar la clasificación de la mejor manera posible. El contexto usado es:
 
-\begin{quote} 
-Eres un clasificador de textos financieros.
+\begin{quotation} 
+\textbf{\textit{Eres un clasificador de textos financieros.}} \\
 
-Clasifica cada texto con las siguientes clases:
+\textbf{\textit{Clasifica cada texto con las siguientes clases:}} \\ 
 
-0 = simple \\
-1 = complejo
+\textbf{\textit{0 = simple}} \\ 
 
+\textbf{\textit{1 = complejo}} \\
 
-Responde únicamente una línea por texto, en este formato exacto:
+\textbf{\textit{Responde únicamente una línea por texto, en este formato exacto:}} \\
 
-ID:CLASE
+\textbf{\textit{ID:CLASE}} \\
 
-Ejemplo de respuesta válida:
+\textbf{\textit{Ejemplo de respuesta válida:}}\\
 
-1:0
+\textbf{\textit{1:0}}\\
 
-Donde 1 es el ID y 0 es la CLASE.
-\end{quote}
+\textbf{\textit{Donde 1 es el ID y 0 es la CLASE.}}
+\end{quotation}
 
 Por otra parte, los textos son el conjunto de documentos que debe clasificar. Este apartado comienza con:
 
-\begin{quote}
-Textos a clasificar:
-\end{quote}
+\begin{quotation}
+\textbf{\textit{Textos a clasificar:}}
+\end{quotation}
 
 Seguido se otorgan los documentos con el formato:
 
-\begin{quote}
-\texttt{Número}. ``\texttt{Documento}''
-\end{quote}
+\begin{quotation}
+\textbf{\texttt{Número}. ``\texttt{Documento}''}
+\end{quotation}
 
 donde \texttt{Número} es el número de documento en ese prompt y \texttt{Documento} el documento (texto) a clasificar. El formato de respuesta esperado debe ser estricto para facilitar la evaluación automática:
 
-\begin{quote}
-\texttt{ID:CLASE}
-\end{quote}
+\begin{quotation}
+\textbf{\texttt{ID:CLASE}}
+\end{quotation}
 
 Por ejemplo, \texttt{1:0} indica que el texto con identificador 1 fue clasificado como simple. En la implementación, cualquier línea que no cumpla el patrón exacto \texttt{ID:CLASE}, donde \texttt{CLASE} debe ser \texttt{0} o \texttt{1}, se registra como \texttt{-1}. Esta decisión evita detener la ejecución por respuestas mal formadas y, al mismo tiempo, impide que una salida inválida sea contada como correcta. Así, el resultado refleja tanto la capacidad de clasificar como la capacidad de seguir instrucciones.
 
@@ -722,6 +722,7 @@ Documento & Etiqueta real & SmolLM3 & Phi-4 mini \\
 \end{tabular}
 \caption{La tabla presenta las respuestas generadas por ambos LLM's. La primer columna es el ID del documento respectivo y la segunda columna representa la clasificación esperada. La tercera y cuarta columna representan las predicciones de SmolLM3 y Phi-4 mini, respectivamente.
 Basado en los resultados, SmolLM3 se muestra superior al tener una precisión de $0.\overline{6}$ mientras que Phi-4 mini tiene una precisión de 0.}
+\label{tab::eje_sinshots}
 \end{table}
 
 \subsubsection{Ejecución con el dataset completo sin few shots}
@@ -752,16 +753,16 @@ Para que el experimento sea comparable, los mismos ejemplos deben usarse en ambo
 
 Con el fin de implementar los few shots, se modificó el prompt añadiendo una sección de shots entre el contexto y los textos. El texto que conforma esta sección es:
 
-\begin{quote}
-Ejemplos:
-\end{quote}
+\begin{quotation}
+\textbf{\textit{Ejemplos:}}
+\end{quotation}
 
 Seguido se agregan los shots en el formato:
 
-\begin{quote}
-\texttt{Número}. ``Documento''
-Clasificación: \texttt{Clase}
-\end{quote}
+\begin{quotation}
+\textbf{\texttt{Número}. ``\texttt{Documento}''} \\
+\textbf{\textit{Clasificación}: \texttt{Clase}}
+\end{quotation}
 
 donde \texttt{Número} es el número de shot en ese prompt, \texttt{Documento} es un documento de ejemplo y \texttt{Clase} la clasificación de documento de ejemplo.
 
@@ -798,7 +799,7 @@ Documento & Etiqueta real & SmolLM3 & Phi-4 mini & SmolLM3 & Phi-4 mini & SmolLM
 \bottomrule
 \end{tabular}
 \end{adjustbox}
-\caption{La tabla presenta las respuestas generadas por ambos LLM's. La primer columna es el ID del documento respectivo y la segunda columna representa la clasificación esperada. La tercera y cuarta columna representan las predicciones de SmolLM3 y Phi-4 mini, respectivamente. \pendiente{explicar resultados}}
+\caption{La tabla presenta las respuestas generadas por ambos LLM's. La primer columna es el ID del documento respectivo y la segunda columna representa la clasificación esperada. La tercera y cuarta columna representan las predicciones de SmolLM3 y Phi-4 mini, respectivamente. Los resultados muestran que SmolLM3 no parece verse afectado por la cantidad de shots proporcionados; incluso, no se observan diferencias entre utilizar shots y no utilizarlos, tabla \ref{tab::eje_sinshots}. SmolLM3 obtuvo una precisión de $0.\overline{6}$. En el caso de Phi-4 mini, si se observa una mejora respecto a lo mostrado sin few shots (tabla \ref{tab::eje_sinshots}), obteniendo el mejor resultado con 4 shots, con una precisión del $0.\overline{6}$ en comparación con el $0.\overline{3}$ de 2 y 7 shots.}
 \end{table}
 
 \subsubsection{Ejecución con el dataset completo}
@@ -844,45 +845,166 @@ Los tratamientos a comparar son:
 \toprule
 Tratamiento & Precisión promedio & Desv. estándar Precisión\\
 \midrule
-TF-IDF + regresión logística & 0.577344 & 0.03981 \\
-Embeddings + regresión logística & 0.619646 & 0.012722 \\
+TF-IDF + regresión logística & 0.4804 & 0.0022 \\
+Embeddings + regresión logística & 0.4790 & 0.0030 \\
 SmolLM3 & 0.4976 & 0.0141 \\
-Phi-4 mini & \pendiente{Completar} & \pendiente{Completar} \\
+Phi-4 mini & 0.4976 & 0.0141 \\
 SmolLM3 + 2 Shots & 0.4983 & 0.0142 \\
-Phi-4 mini + 2 Shots & \pendiente{Completar} & \pendiente{Completar} \\
+Phi-4 mini + 2 Shots & 0.4899 & 0.0240 \\
 \bottomrule
 \end{tabular}
-\caption{En esta tabla se registran los resultados de todos los clasificadores implementados anteriormente, en la columna de tratamiento podemos encontrar la configuración del clasificador, en la columna Precisión promedio se registra la precisión media de las 30 corridas con el dataset completo y en la columna Desv. estándar Precisión la desviación estándar asociada a las 30 corridas. Se registra únicamente la configuración con 2 shots debido a que se pudo observar que con 2 shots se consiguen buenos resultados y mejora el rendimiento y la relación tiempo/precisión.}
+\caption{En esta tabla se registran los resultados de todos los clasificadores implementados anteriormente, en la columna de tratamiento podemos encontrar la configuración del clasificador, en la columna Precisión promedio se registra la precisión media de las 30 corridas con el dataset completo y en la columna Desv. estándar Precisión la desviación estándar asociada a las 30 corridas. Se registra únicamente la configuración con 2 shots debido a que se pudo observar que con 2 shots se consiguen buenos resultados y mejora el rendimiento y la relación tiempo/precisión. Se puede observar como la diferencia entre la precisión promedio es bastante similar entre cada tratamiento utilizado en el dataset completo, mostrando que realmente ningún tratamiento es notablemente superior para el dataset completo.}
 \label{tab:final-results}
 \end{table}
 
-En la tabla \ref{tab:final-results} se puede observar como la diferencia entre la precisión promedio se empieza a notar entre el tratamiento utilizado en el dataset completo, mostrando que ...
+\begin{figure}[H]
+\centering
+\begin{subfigure}{0.527\textwidth}
+    \centering
+    \includegraphics[width=1\linewidth]{accuracy_bert.png}
+    \caption{BERT Embeddings}
+\end{subfigure}
+\hfill
+\begin{subfigure}{0.463\textwidth}
+    \centering
+    \includegraphics[width=1\linewidth]{accuracy_tfidf.png}
+    \caption{TF-IDF}
+\end{subfigure}
+\caption{Gráficas de la precisión de los modelos LLM sin few-shots por cada corrida de las 30 en total. En la parte izquierda se presenta el modelo de BERT y en la derecha TF-IDF. Ambos tienen un rango de precisión y comportamiento similar. TF-IDF alcanza un máximo mayor y BERT tiene un mínimo menor.}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\begin{subfigure}{0.527\textwidth}
+    \centering
+    \includegraphics[width=1\linewidth]{accuracy_smollm3.png}
+    \caption{SmolLM3}
+\end{subfigure}
+\hfill
+\begin{subfigure}{0.463\textwidth}
+    \centering
+    \includegraphics[width=1\linewidth]{accuracy_phi4.png}
+    \caption{Phi-4 mini}
+\end{subfigure}
+\caption{Gráficas de la precisión de los modelos LLM sin few-shots por cada corrida de las 30 en total. En la parte izquierda se presenta el modelo SmolLM3 y en la derecha Phi-4 mini. Ambos tienen un rango de precisión bastante similar, sin embargo, Phi-4 parece tener algo más de estabilidad pero alcanza un mínimo menor y un máximo mayor a los de SmolLM3.}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\begin{subfigure}{0.527\textwidth}
+    \centering
+    \includegraphics[width=1\linewidth]{accuracy_smollm3_2.png}
+    \caption{SmolLM3}
+\end{subfigure}
+\hfill
+\begin{subfigure}{0.463\textwidth}
+    \centering
+    \includegraphics[width=1\linewidth]{accuracy_phi4_2.png}
+    \caption{Phi-4 mini}
+\end{subfigure}
+\caption{Gráficas de la precisión de los modelos LLM con una configuración de few-shots de 2 por cada corrida de las 30 en total. En la parte izquierda se presenta el modelo SmolLM3 y en la derecha Phi-4 mini. Phi-4 muestra algo de estabilidad en el rango de precisión $[0.48, 0.52]$ pero alcanza un mínimo considerablemente más bajos que los demás modelos, esto explica porque es el que tiene mayor desviación estándar de todos. Por otro lado, SmolLM3 muestra buena precisión durante las iteraciones comparado con otros.} 
+\end{figure}
+
+En la tabla \ref{tab:final-results} podemos derivar que aunque los tratamientos de tfidf y embeddings mostraban mejores resultados en el dataset completo con una corrida, luego de las 30 corridas con los datos aleatorios, hizo que su precisión bajara considerablemente al punto que establecer una diferencia clara entre cual tratamiento usar para tener mejores resultados es una tarea difícil. Otros datos que caben resaltar son que el modelo con mayor precisión media fue SmolLM3, mientras que mantuvo la menor desviación estándar media fue el tratamiento de regresión logística con TFIDF.
 
 \section{Prueba estadística}
 
-Después de obtener los resultados de las 30 corridas, se realiza una prueba estadística para determinar si las diferencias entre tratamientos son atribuibles a variación aleatoria o si existe evidencia de diferencias sistemáticas de rendimiento.
+Después de obtener las 30 corridas por tratamiento, se aplicó una prueba estadística no
+paramétrica para determinar si existen diferencias sistemáticas entre los modelos evaluados. Dado
+  que se comparan más de dos tratamientos sobre las mismas corridas, se utilizó la prueba de
+  Friedman. Esta prueba es adecuada porque no exige asumir normalidad en los resultados y trabaja
+  directamente con rangos por corrida.
 
-Dado que se comparan más de dos tratamientos sobre las mismas particiones, una opción natural es un ANOVA de medidas repetidas si se cumplen sus supuestos. En este diseño, cada corrida funciona como bloque o sujeto experimental, y cada tratamiento se evalúa sobre la misma partición. La hipótesis nula es que todos los tratamientos tienen el mismo rendimiento promedio:
+  La hipótesis nula plantea que todos los tratamientos presentan un rendimiento equivalente:
 
-\begin{equation}
-H_0: \mu_1 = \mu_2 = \cdots = \mu_k.
-\end{equation}
+  \begin{equation}
+  H_0: \text{no existen diferencias sistemáticas entre los tratamientos.}
+  \end{equation}
 
-La hipótesis alternativa indica que al menos un tratamiento tiene una media distinta:
+  La hipótesis alternativa indica que al menos un tratamiento presenta un comportamiento distinto:
 
-\begin{equation}
-H_1: \exists i,j \; \mu_i \neq \mu_j.
-\end{equation}
+  \begin{equation}
+  H_1: \text{al menos un tratamiento difiere sistemáticamente de los demás.}
+  \end{equation}
 
-Antes de aplicar ANOVA se deben revisar sus supuestos, especialmente normalidad de residuos y esfericidad. Si estos supuestos no se cumplen, se debe considerar una alternativa no paramétrica, como la prueba de Friedman. En caso de encontrar diferencias significativas, se recomienda aplicar una prueba post-hoc para identificar entre cuáles tratamientos aparecen dichas diferencias.
+  Los tratamientos incluidos en la prueba fueron TF-IDF con regresión logística, BERT con regresión
+  logística, SmolLM3 sin shots, SmolLM3 con 2 shots, Phi-4 mini sin shots y Phi-4 mini con 2 shots.
+  En todos los casos se utilizaron los resultados de accuracy obtenidos en las 30 corridas,
+  manteniendo el mismo orden de semillas para preservar el diseño pareado.
 
-\pendiente{Una vez ejecutadas las 30 corridas, agregar prueba de supuestos, estadístico, valor $p$, tamaño de efecto y análisis post-hoc si corresponde.}
+  \begin{table}[H]
+  \centering
+  \begin{tabular}{lccc}
+  \toprule
+  Tratamiento & Accuracy promedio & Desv. estándar & Rango medio \\
+  \midrule
+  TF-IDF + regresión logística & 0.480177 & 0.003060 & 4.933 \\
+  BERT + regresión logística & 0.478773 & 0.002447 & 5.333 \\
+  SmolLM3 sin shots & 0.497615 & 0.014070 & 2.450 \\
+  SmolLM3 + 2 shots & 0.498288 & 0.014151 & 2.550 \\
+  Phi-4 mini sin shots & 0.497646 & 0.014093 & 2.567 \\
+  Phi-4 mini + 2 shots & 0.489933 & 0.024004 & 3.167 \\
+  \bottomrule
+  \end{tabular}
+  \caption{Resumen de los tratamientos evaluados en la prueba estadística. Como la métrica usada es
+  accuracy, un rango medio menor indica mejor posición relativa dentro de las corridas.}
+  \label{tab:stat-summary}
+  \end{table}
+
+  La prueba de Friedman produjo un estadístico $\chi^2 = 72.230181$ con valor $p = 3.5174 \times
+  10^{-14}$. Además, se obtuvo un tamaño de efecto de Kendall $W = 0.481535$, lo que sugiere una
+  diferencia global apreciable entre los tratamientos. Por tanto, se rechaza la hipótesis nula y se
+  concluye que no todos los tratamientos presentan el mismo rendimiento.
+
+  Como análisis post-hoc, se aplicó la prueba de Wilcoxon pareada entre pares de tratamientos,
+  usando corrección de Holm para controlar el error por comparaciones múltiples.
+
+  \begin{table}[H]
+  \centering
+  \begin{adjustbox}{center}
+  \begin{tabular}{lccc}
+  \toprule
+  Comparación & $W$ & $p_{\text{Holm}}$ & Diferencia significativa \\
+  \midrule
+  TF-IDF vs BERT & 152.000 & 0.513638 & No \\
+  TF-IDF vs SmolLM3 sin shots & 17.000 & $4.62681 \times 10^{-6}$ & Sí \\
+  TF-IDF vs SmolLM3 + 2 shots & 19.000 & $6.29015 \times 10^{-6}$ & Sí \\
+  TF-IDF vs Phi-4 mini sin shots & 21.000 & $8.32602 \times 10^{-6}$ & Sí \\
+  TF-IDF vs Phi-4 mini + 2 shots & 55.000 & 0.000792205 & Sí \\
+  BERT vs SmolLM3 sin shots & 12.000 & $1.95578 \times 10^{-6}$ & Sí \\
+  BERT vs SmolLM3 + 2 shots & 15.000 & $3.57255 \times 10^{-6}$ & Sí \\
+  BERT vs Phi-4 mini sin shots & 15.000 & $3.57255 \times 10^{-6}$ & Sí \\
+  BERT vs Phi-4 mini + 2 shots & 53.000 & 0.000711959 & Sí \\
+  SmolLM3 sin shots vs SmolLM3 + 2 shots & 231.500 & 1.000000 & No \\
+  SmolLM3 sin shots vs Phi-4 mini sin shots & 231.000 & 1.000000 & No \\
+  SmolLM3 + 2 shots vs Phi-4 mini + 2 shots & 140.000 & 0.403816 & No \\
+  Phi-4 mini sin shots vs Phi-4 mini + 2 shots & 151.000 & 0.601753 & No \\
+  \bottomrule
+  \end{tabular}
+  \end{adjustbox}
+  \caption{Comparaciones post-hoc mediante Wilcoxon pareado con corrección de Holm.}
+  \label{tab:posthoc-wilcoxon}
+  \end{table}
+
+  Los resultados muestran que TF-IDF y BERT no presentan una diferencia estadísticamente
+  significativa entre sí. Sin embargo, ambos difieren significativamente de las configuraciones
+  basadas en LLMs. Por otro lado, no se observan diferencias significativas entre SmolLM3, Phi-4
+  mini y sus variantes con 2 shots. Esto indica que, bajo este protocolo experimental, el uso de
+  few-shot con 2 ejemplos no produjo una mejora estadísticamente distinguible dentro de los LLMs
+  evaluados.
+
+  Aunque los LLMs presentan medias ligeramente superiores en accuracy, la prueba post-hoc sugiere
+  que las diferencias relevantes se concentran entre las familias de regresión logística y las
+  configuraciones generativas, no entre las variantes internas de los LLMs. Además, dado que todos
+  los valores se mantienen cercanos al azar, estos resultados deben interpretarse como evidencia
+  comparativa entre tratamientos, no como evidencia de un clasificador suficientemente robusto para
+  la tarea.
 
 \section{Conclusiones}
 
 Este trabajo compara representaciones clásicas, representaciones semánticas y modelos generativos instruidos para la clasificación de complejidad textual en español financiero. La estructura experimental permite observar no solo qué modelo obtiene mejores métricas, sino también qué tipo de representación resulta más adecuada para un dominio especializado y sensible a decisiones lingüísticas como tokenización, eliminación de palabras vacías y lematización.
 
-\pendiente{Redactar las conclusiones finales cuando estén completos los resultados de TF-IDF, embeddings, LLMs, few-shot, prueba completa y prueba estadística.}
+Como conclusión, no podemos determinar un mejor modelo para la tarea, ya que todos los modelos utilizan métodos diferentes para intentar clasificar los datos. Pero podemos analizar los resultados obtenidos, por ejemplo, para regresión logística con vectores empotrados si se notó una precisión bastate más alta que otros tratamientos, aunque al final la brecha fue disminuyendo. Por parte del tfidf aunque la idea de clasificar textos entre simples y complejos utilizando la frecuencia de los términos es buena, en la práctica no resultó de la mejor forma, porque aunque en la prueba con el dataset completo \ref{tab:tdidf-results}. En las 30 corridas también bajó considerablemente su precisión. Tampoco podemos discriminar el uso de LLMs, ya que siendo justos, no pasa por un proceso de entrenamiento controlado por nosotros mismos para el problema de clasificación, únicamente utiliza su preentenamiento para intentar resolver tareas de otros ámbitos y esto es una clara desventaja, además el costo computacional y tiempo que se demora estos tratamientos, es demasiado y sus resultados no son favorables. Lo mismo pasa con TDIDF, aunque claramente es menos costoso que LLMs, sigue siendo costoso en términos de tiempo, por lo que podemos decir que el mejor tratamiento en relación a precisión y velocidad es regresión logística con vectores empotrados, aunque no por decir que concluímos que fue el mejor desde el punto de vista de tiempo, signifique que cumplió bien su trabajo, ya que una precisión del 50\% roza el azar y no podemos considerar un buen clasificador de textos complejos/simples con estas precisiones.
 
 \bibliographystyle{IEEEtran}
 \bibliography{references}
