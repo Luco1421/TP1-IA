@@ -114,7 +114,7 @@ class TestLLMUtils :
             print(f"{name} with {i} shots - Accuracy: {accuracy}")
 
     def test_all_LLM(self, name, fun_model, dataset, shot_configs):
-        #N = int(len(dataset.corpus) * (1 - TP2.RATIO_SPLIT_4C))
+        N = int(len(dataset.corpus) * (1 - TP2.RATIO_SPLIT_4C))
 
         results = {}
 
@@ -122,13 +122,12 @@ class TestLLMUtils :
         for shots in shot_configs:
             results[shots] = []
 
-        for i in range(2):
+        for i in range(30):
             indexes = list(range(len(dataset.corpus)))
             random.seed(i)
             random.shuffle(indexes)
             shuffle_corpus = [dataset.corpus[idx] for idx in indexes]
             shuffle_labels = [dataset.labels[idx] for idx in indexes]
-            N = len(shuffle_corpus) - 10
 
             test_batches = self.batcher.set_batches(shuffle_corpus[N:])
             acc_zero = self.test(fun_model, test_batches, shuffle_labels[N:], shots="")

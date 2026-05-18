@@ -16,7 +16,7 @@ RUNS = 30
 TEST_SIZE = 0.2
 TRAIN_ITERATIONS = 500
 EPSILON = 1e-5
-FIXED_ALPHA = 0.01
+FIXED_ALPHA = 0.1
 N_TRIALS = 5
 EMBEDDING_MODEL = "sentence-transformers/distiluse-base-multilingual-cased-v1"
 
@@ -24,7 +24,6 @@ optuna.logging.set_verbosity(optuna.logging.WARNING)
 nltk.download("stopwords", quiet=True)
 
 STOP_WORDS_ES = set(stopwords.words("spanish"))
-
 
 dataset = Dataset("FEINA_1.xlsx").read()
 
