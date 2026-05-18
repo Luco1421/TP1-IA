@@ -337,7 +337,7 @@ Mínimo error MAE obtenido & 0.000588 & 0.226277 \\
 \bottomrule
 \end{tabular}
 \end{adjustbox}
-\caption{Resumen de los resultados obtenidos con regresión logística utilizando datos sintéticos a lo largo de 10 corridas independientes. La primera fila muestra el MAE promedio sobre el conjunto de prueba, calculado a partir de las 10 corridas. La segunda fila corresponde a la desviación estándar del MAE en el conjunto de prueba, mientras que la última fila presenta el valor mínimo de MAE obtenido durante las evaluaciones sobre dicho conjunto. El promedio MAE y mínimo MAE presentan una gran diferencia entre las corridas con datos separables y no separables. Principalmente, los datos separables presentan un error de evaluación relativamente bueno en comparación con los no separables. Por otro lado, la desviación estándar es muy similar en ambos, esto puede deberse a que el descenso gradiente se comporta de forma similar con ambos tipos de datos.}
+\caption{Resumen de los resultados obtenidos con regresión logística utilizando datos sintéticos a lo largo de 10 corridas independientes. La primera fila muestra el MAE promedio sobre el conjunto de prueba, calculado a partir de las 10 corridas. La segunda fila corresponde a la desviación estándar del MAE en el conjunto de prueba, mientras que la última fila presenta el valor mínimo de MAE obtenido durante las evaluaciones sobre dicho conjunto. El promedio MAE y mínimo MAE presentan una gran diferencia entre las corridas con datos separables y no separables. Principalmente, los datos separables presentan un error de evaluación relativamente bueno en comparación con los no separables. Por otro lado, la desviación estándar es muy similar en ambos, esto puede deberse a que el descenso gradiente se comporta de forma similar con ambos tipos de datos. Se puede derivar el valor de la precisión dado el MAE, debido a que se está trabajando sobre clasificación binaria, entonces es su complemento}
 \end{table}
 
 \section{Regresión logística con TF-IDF}
@@ -428,7 +428,7 @@ $[$`equipo', `realizar', `redacción', `libro', `luego', `obtener', `informació
 \end{subfigure}
 \caption{Se puede observar que el preprocesador elimina preposiciones como 'de', cambia las conjunciones a verbos como 'realizó' a 'redactar'. También cambia de plural a singular y elimina signos de puntuación como `.'. }
 \end{figure}
- 
+
 
 \begin{figure}[H]
 \centering
@@ -436,7 +436,7 @@ $[$`equipo', `realizar', `redacción', `libro', `luego', `obtener', `informació
 \fbox{\parbox{0.9\textwidth}{\centering
 \vspace{1.2cm}
 \textbf{Texto:} \\
-Luego de haber obtenido la anterior información y haber hecho acopio de las fuentes bibliográficas y virtuales respectivas, el equipo procedió a realizar la redacción o construcción del libro. 
+Luego de haber obtenido la anterior información y haber hecho acopio de las fuentes bibliográficas y virtuales respectivas, el equipo procedió a realizar la redacción o construcción del libro.
 \vspace{1.2cm}}}
 \end{subfigure}
 \begin{subfigure}{0.48\textwidth}
@@ -460,7 +460,7 @@ A continuación, se presenta un análisis cualitativo de esta representación, s
 \subsubsection{Análisis de la transformación TF-IDF}
 Para el análisis de la tranformación TF-IDF se tomaron los documentos:
 \begin{itemize}
-\item \textbf{Documento 0}: Luego de haber obtenido la anterior información y haber hecho acopio de las fuentes bibliográficas y virtuales respectivas, el equipo procedió a realizar la redacción o construcción del libro. 
+\item \textbf{Documento 0}: Luego de haber obtenido la anterior información y haber hecho acopio de las fuentes bibliográficas y virtuales respectivas, el equipo procedió a realizar la redacción o construcción del libro.
 \item \textbf{Documento 1}: El equipo realizó la redacción del libro luego de obtener la información anterior y reunir las fuentes bibliográficas y virtuales respectivas.
 \end{itemize}
 
@@ -644,12 +644,12 @@ Durante las pruebas se compararon variantes de prompt y se eligió la que produj
 
 El prompt se compone de dos partes, el contexto y los textos. El objetivo del contexto es proporcionarle la información y las instrucciones específicas que debe seguir a fin de realizar la clasificación de la mejor manera posible. El contexto usado es:
 
-\begin{quotation} 
+\begin{quotation}
 \textbf{\textit{Eres un clasificador de textos financieros.}} \\
 
-\textbf{\textit{Clasifica cada texto con las siguientes clases:}} \\ 
+\textbf{\textit{Clasifica cada texto con las siguientes clases:}} \\
 
-\textbf{\textit{0 = simple}} \\ 
+\textbf{\textit{0 = simple}} \\
 
 \textbf{\textit{1 = complejo}} \\
 
@@ -688,7 +688,7 @@ En la implementación se utiliza una clase Batcher, para partir el conjunto de d
 
 \subsection{Clasificación sin few-shot}
 
-En la configuración sin few-shot, el prompt describe la tarea y el formato de salida, pero no proporciona ejemplos etiquetados. Esta condición evalúa la capacidad del modelo para interpretar la instrucción desde su conocimiento previo. 
+En la configuración sin few-shot, el prompt describe la tarea y el formato de salida, pero no proporciona ejemplos etiquetados. Esta condición evalúa la capacidad del modelo para interpretar la instrucción desde su conocimiento previo.
 
 \subsubsection{Ejecución de ejemplo}
 En esta sección se prueban los LLM con 3 ejemplos extraídos de FEINA para comprobar que su comportamiento es el esperado, previo a su ejecución sobre el dataset completo.
@@ -743,7 +743,7 @@ Phi-4 mini & 0.51009483 & 26m55s \\
 \caption{En esta tabla tenemos en la primer columna el nombre del modelo LLM utilizado para la prueba con el dataset completo, en la segunda columna el resultado de la precisión obtenido luego de la ejecución con el dataset completo y en la última columna el tiempo que demoró en ejecutarse. En la tabla se puede apreciar que la diferencia entre la precisión de ambos modelos no es sustancial, ambos modelos aproximan un 50\%, lo cuál es un poco bajo en comparación con otros resultados como regresión logística con TFIDF o embeddings}
 \end{table}
 
-Estos resultados pueden parecer bajos, sin embargo se debe entender que son resultados sin fase de entrenamiento, es decir, los modelos no se habían enfrentado a esos textos anteriormente y tampoco tiene ejemplos para poder deducir un resultado correcto. 
+Estos resultados pueden parecer bajos, sin embargo se debe entender que son resultados sin fase de entrenamiento, es decir, los modelos no se habían enfrentado a esos textos anteriormente y tampoco tiene ejemplos para poder deducir un resultado correcto.
 
 \subsection{Clasificación con few-shot}
 
@@ -902,103 +902,271 @@ Phi-4 mini + 2 Shots & 0.4899 & 0.0240 \\
     \includegraphics[width=1\linewidth]{accuracy_phi4_2.png}
     \caption{Phi-4 mini}
 \end{subfigure}
-\caption{Gráficas de la precisión de los modelos LLM con una configuración de few-shots de 2 por cada corrida de las 30 en total. En la parte izquierda se presenta el modelo SmolLM3 y en la derecha Phi-4 mini. Phi-4 muestra algo de estabilidad en el rango de precisión $[0.48, 0.52]$ pero alcanza un mínimo considerablemente más bajos que los demás modelos, esto explica porque es el que tiene mayor desviación estándar de todos. Por otro lado, SmolLM3 muestra buena precisión durante las iteraciones comparado con otros.} 
+\caption{Gráficas de la precisión de los modelos LLM con una configuración de few-shots de 2 por cada corrida de las 30 en total. En la parte izquierda se presenta el modelo SmolLM3 y en la derecha Phi-4 mini. Phi-4 muestra algo de estabilidad en el rango de precisión $[0.48, 0.52]$ pero alcanza un mínimo considerablemente más bajos que los demás modelos, esto explica porque es el que tiene mayor desviación estándar de todos. Por otro lado, SmolLM3 muestra buena precisión durante las iteraciones comparado con otros.}
 \end{figure}
 
-En la tabla \ref{tab:final-results} podemos derivar que aunque los tratamientos de tfidf y embeddings mostraban mejores resultados en el dataset completo con una corrida, luego de las 30 corridas con los datos aleatorios, hizo que su precisión bajara considerablemente al punto que establecer una diferencia clara entre cual tratamiento usar para tener mejores resultados es una tarea difícil. Otros datos que caben resaltar son que el modelo con mayor precisión media fue SmolLM3, mientras que mantuvo la menor desviación estándar media fue el tratamiento de regresión logística con TFIDF.
+En la tabla \ref{tab:final-results} podemos derivar que aunque los tratamientos de TF-IDF y embeddings mostraban mejores resultados en el dataset completo con una corrida, luego de las 30 corridas con los datos aleatorios, hizo que su precisión bajara considerablemente al punto que establecer una diferencia clara entre cual tratamiento usar para tener mejores resultados es una tarea difícil. Otros datos que caben resaltar son que el modelo con mayor precisión media fue SmolLM3, mientras que mantuvo la menor desviación estándar media fue el tratamiento de regresión logística con TFIDF.
 
 \section{Prueba estadística}
 
-Después de obtener las 30 corridas por tratamiento, se aplicó una prueba estadística no
-paramétrica para determinar si existen diferencias sistemáticas entre los modelos evaluados. Dado
-  que se comparan más de dos tratamientos sobre las mismas corridas, se utilizó la prueba de
-  Friedman. Esta prueba es adecuada porque no exige asumir normalidad en los resultados y trabaja
-  directamente con rangos por corrida.
+Después de obtener las 30 corridas por tratamiento, se aplicó una prueba estadística para
+determinar si las diferencias observadas entre los modelos eran sistemáticas o si podían
+explicarse por variaciones aleatorias entre corridas. En este experimento no basta con comparar
+únicamente los promedios, porque cada tratamiento fue evaluado varias veces y cada corrida puede
+favorecer ligeramente a un modelo distinto según la partición de los datos.
 
-  La hipótesis nula plantea que todos los tratamientos presentan un rendimiento equivalente:
+El diseño de comparación es pareado: la corrida $i$ de TF-IDF, BERT, SmolLM3 y Phi-4 corresponde
+al mismo número de corrida dentro del protocolo experimental. Por tanto, las observaciones no se
+tratan como grupos completamente independientes, sino como mediciones comparables corrida por
+corrida.
 
-  \begin{equation}
-  H_0: \text{no existen diferencias sistemáticas entre los tratamientos.}
-  \end{equation}
+Los tratamientos evaluados fueron:
 
-  La hipótesis alternativa indica que al menos un tratamiento presenta un comportamiento distinto:
+\begin{itemize}
+    \item TF-IDF con regresión logística.
+    \item BERT con regresión logística.
+    \item SmolLM3 sin shots.
+    \item SmolLM3 con 2 shots.
+    \item Phi-4 mini sin shots.
+    \item Phi-4 mini con 2 shots.
+\end{itemize}
 
-  \begin{equation}
-  H_1: \text{al menos un tratamiento difiere sistemáticamente de los demás.}
-  \end{equation}
-
-  Los tratamientos incluidos en la prueba fueron TF-IDF con regresión logística, BERT con regresión
-  logística, SmolLM3 sin shots, SmolLM3 con 2 shots, Phi-4 mini sin shots y Phi-4 mini con 2 shots.
-  En todos los casos se utilizaron los resultados de accuracy obtenidos en las 30 corridas,
-  manteniendo el mismo orden de semillas para preservar el diseño pareado.
-
-  \begin{table}[H]
+\begin{table}[H]
   \centering
-  \begin{tabular}{lccc}
+  \scriptsize
+  \begin{adjustbox}{max width=\textwidth}
+  \begin{tabular}{ccccccc}
   \toprule
-  Tratamiento & Accuracy promedio & Desv. estándar & Rango medio \\
+  Corrida / seed & TF-IDF & BERT & SmolLM3 sin shots & SmolLM3 + 2 shots & Phi-4 sin shots & Phi-4 + 2
+  shots \\
   \midrule
-  TF-IDF + regresión logística & 0.480177 & 0.003060 & 4.933 \\
-  BERT + regresión logística & 0.478773 & 0.002447 & 5.333 \\
-  SmolLM3 sin shots & 0.497615 & 0.014070 & 2.450 \\
-  SmolLM3 + 2 shots & 0.498288 & 0.014151 & 2.550 \\
-  Phi-4 mini sin shots & 0.497646 & 0.014093 & 2.567 \\
-  Phi-4 mini + 2 shots & 0.489933 & 0.024004 & 3.167 \\
-  \bottomrule
-  \end{tabular}
-  \caption{Resumen de los tratamientos evaluados en la prueba estadística. Como la métrica usada es
-  accuracy, un rango medio menor indica mejor posición relativa dentro de las corridas.}
-  \label{tab:stat-summary}
-  \end{table}
-
-  La prueba de Friedman produjo un estadístico $\chi^2 = 72.230181$ con valor $p = 3.5174 \times
-  10^{-14}$. Además, se obtuvo un tamaño de efecto de Kendall $W = 0.481535$, lo que sugiere una
-  diferencia global apreciable entre los tratamientos. Por tanto, se rechaza la hipótesis nula y se
-  concluye que no todos los tratamientos presentan el mismo rendimiento.
-
-  Como análisis post-hoc, se aplicó la prueba de Wilcoxon pareada entre pares de tratamientos,
-  usando corrección de Holm para controlar el error por comparaciones múltiples.
-
-  \begin{table}[H]
-  \centering
-  \begin{adjustbox}{center}
-  \begin{tabular}{lccc}
-  \toprule
-  Comparación & $W$ & $p_{\text{Holm}}$ & Diferencia significativa \\
-  \midrule
-  TF-IDF vs BERT & 152.000 & 0.513638 & No \\
-  TF-IDF vs SmolLM3 sin shots & 17.000 & $4.62681 \times 10^{-6}$ & Sí \\
-  TF-IDF vs SmolLM3 + 2 shots & 19.000 & $6.29015 \times 10^{-6}$ & Sí \\
-  TF-IDF vs Phi-4 mini sin shots & 21.000 & $8.32602 \times 10^{-6}$ & Sí \\
-  TF-IDF vs Phi-4 mini + 2 shots & 55.000 & 0.000792205 & Sí \\
-  BERT vs SmolLM3 sin shots & 12.000 & $1.95578 \times 10^{-6}$ & Sí \\
-  BERT vs SmolLM3 + 2 shots & 15.000 & $3.57255 \times 10^{-6}$ & Sí \\
-  BERT vs Phi-4 mini sin shots & 15.000 & $3.57255 \times 10^{-6}$ & Sí \\
-  BERT vs Phi-4 mini + 2 shots & 53.000 & 0.000711959 & Sí \\
-  SmolLM3 sin shots vs SmolLM3 + 2 shots & 231.500 & 1.000000 & No \\
-  SmolLM3 sin shots vs Phi-4 mini sin shots & 231.000 & 1.000000 & No \\
-  SmolLM3 + 2 shots vs Phi-4 mini + 2 shots & 140.000 & 0.403816 & No \\
-  Phi-4 mini sin shots vs Phi-4 mini + 2 shots & 151.000 & 0.601753 & No \\
+  1 & 0.4876 & 0.4807 & 0.4889 & 0.4948 & 0.4822 & 0.4830 \\
+  2 & 0.4803 & 0.4799 & 0.5151 & 0.4962 & 0.5075 & 0.5098 \\
+  3 & 0.4832 & 0.4824 & 0.4863 & 0.5023 & 0.4924 & 0.4863 \\
+  4 & 0.4792 & 0.4774 & 0.4809 & 0.5050 & 0.5061 & 0.5053 \\
+  5 & 0.4794 & 0.4849 & 0.5130 & 0.4970 & 0.5122 & 0.4962 \\
+  6 & 0.4805 & 0.4766 & 0.4881 & 0.5216 & 0.5037 & 0.4925 \\
+  7 & 0.4834 & 0.4783 & 0.5070 & 0.4996 & 0.4915 & 0.4908 \\
+  8 & 0.4852 & 0.4770 & 0.4959 & 0.5102 & 0.5026 & 0.5052 \\
+  9 & 0.4781 & 0.4783 & 0.5019 & 0.4989 & 0.4869 & 0.4891 \\
+  10 & 0.4859 & 0.4788 & 0.5143 & 0.5015 & 0.5264 & 0.4962 \\
+  11 & 0.4753 & 0.4788 & 0.5038 & 0.5084 & 0.5092 & 0.5023 \\
+  12 & 0.4791 & 0.4801 & 0.4815 & 0.4778 & 0.4861 & 0.4974 \\
+  13 & 0.4827 & 0.4782 & 0.5196 & 0.4895 & 0.5060 & 0.5136 \\
+  14 & 0.4795 & 0.4749 & 0.5123 & 0.5093 & 0.4862 & 0.5041 \\
+  15 & 0.4788 & 0.4780 & 0.4955 & 0.4985 & 0.5166 & 0.4895 \\
+  16 & 0.4812 & 0.4797 & 0.4771 & 0.4634 & 0.5061 & 0.4878 \\
+  17 & 0.4814 & 0.4824 & 0.4978 & 0.4847 & 0.4873 & 0.3777 \\
+  18 & 0.4819 & 0.4745 & 0.5193 & 0.5134 & 0.4955 & 0.4836 \\
+  19 & 0.4760 & 0.4789 & 0.4813 & 0.4851 & 0.5202 & 0.5027 \\
+  20 & 0.4748 & 0.4802 & 0.4714 & 0.4932 & 0.4977 & 0.4551 \\
+  21 & 0.4781 & 0.4810 & 0.4926 & 0.4881 & 0.4702 & 0.4918 \\
+  22 & 0.4782 & 0.4758 & 0.5004 & 0.5201 & 0.4665 & 0.4881 \\
+  23 & 0.4795 & 0.4824 & 0.5000 & 0.5038 & 0.5069 & 0.5023 \\
+  24 & 0.4761 & 0.4785 & 0.5192 & 0.5214 & 0.5064 & 0.5041 \\
+  25 & 0.4761 & 0.4784 & 0.4916 & 0.4869 & 0.4939 & 0.4992 \\
+  26 & 0.4799 & 0.4807 & 0.5163 & 0.5195 & 0.4910 & 0.4985 \\
+  27 & 0.4796 & 0.4779 & 0.4992 & 0.4878 & 0.4947 & 0.4817 \\
+  28 & 0.4817 & 0.4774 & 0.4928 & 0.4905 & 0.5072 & 0.4886 \\
+  29 & 0.4816 & 0.4747 & 0.4870 & 0.4751 & 0.4751 & 0.4803 \\
+  30 & 0.4810 & 0.4764 & 0.4785 & 0.5049 & 0.4951 & 0.4951 \\
   \bottomrule
   \end{tabular}
   \end{adjustbox}
-  \caption{Comparaciones post-hoc mediante Wilcoxon pareado con corrección de Holm.}
-  \label{tab:posthoc-wilcoxon}
+  \caption{Valores de precisión usados en la prueba estadística. Cada fila representa una corrida, corresponde tambi;en al valor del seed en la corrida y
+  cada columna un tratamiento.}
+  \label{tab:stat-all-runs}
   \end{table}
 
-  Los resultados muestran que TF-IDF y BERT no presentan una diferencia estadísticamente
-  significativa entre sí. Sin embargo, ambos difieren significativamente de las configuraciones
-  basadas en LLMs. Por otro lado, no se observan diferencias significativas entre SmolLM3, Phi-4
-  mini y sus variantes con 2 shots. Esto indica que, bajo este protocolo experimental, el uso de
-  few-shot con 2 ejemplos no produjo una mejora estadísticamente distinguible dentro de los LLMs
-  evaluados.
+Como se comparan más de dos tratamientos sobre las mismas 30 corridas, se utilizó la prueba de
+Friedman mediante la función \texttt{friedmanchisquare} de \texttt{scipy.stats}. Esta prueba es
+no paramétrica, por lo que no exige asumir que los valores de precisión siguen una distribución
+normal. En lugar de trabajar directamente con los valores absolutos, compara la posición relativa
+de los tratamientos dentro de cada corrida.
 
-  Aunque los LLMs presentan medias ligeramente superiores en accuracy, la prueba post-hoc sugiere
-  que las diferencias relevantes se concentran entre las familias de regresión logística y las
-  configuraciones generativas, no entre las variantes internas de los LLMs. Además, dado que todos
-  los valores se mantienen cercanos al azar, estos resultados deben interpretarse como evidencia
-  comparativa entre tratamientos, no como evidencia de un clasificador suficientemente robusto para
-  la tarea.
+La idea central de Friedman es la siguiente: en cada corrida, los tratamientos se ordenan según
+su rendimiento. Como la métrica usada es la precisión, un valor mayor indica mejor desempeño. El
+mejor tratamiento de una corrida recibe el mejor rango, el siguiente recibe el segundo mejor
+rango, y así sucesivamente. Si todos los tratamientos fueran equivalentes, sus rangos promedio
+deberían ser parecidos. Si un tratamiento tiende a quedar sistemáticamente mejor o peor
+posicionado, sus rangos se separan de los demás \cite{richardson2018friedman}.
+
+La hipótesis nula se define como:
+
+\begin{equation}
+H_0: \text{todos los tratamientos presentan un rendimiento equivalente.}
+\end{equation}
+
+La hipótesis alternativa se define como:
+
+\begin{equation}
+H_1: \text{al menos un tratamiento presenta un rendimiento sistemáticamente distinto.}
+\end{equation}
+
+El estadístico observado de Friedman se denota como $\chi^2_F$ y se calcula a partir de los
+rangos acumulados de cada tratamiento:
+
+\begin{equation}
+\chi^2_F =
+\frac{12}{n k (k+1)}
+\sum_{j=1}^{k} R_j^2
+- 3n(k+1),
+\end{equation}
+
+donde $n$ es la cantidad de corridas, $k$ es la cantidad de tratamientos y $R_j$ es la suma de
+rangos del tratamiento $j$. En este experimento se tiene:
+
+\begin{equation}
+n = 30,
+\qquad
+k = 6.
+\end{equation}
+
+El estadístico $\chi^2_F$ mide qué tan diferentes son los rangos acumulados entre tratamientos.
+Si los tratamientos se comportaran de forma similar, las sumas de rangos serían parecidas y el
+estadístico sería pequeño. Si algunos tratamientos quedan repetidamente por encima o por debajo
+de otros, el estadístico aumenta.
+
+Una vez obtenido el valor observado $\chi^2_F$, se calcula el valor $p$. Este valor representa la
+probabilidad de obtener una diferencia entre rangos igual o más extrema que la observada,
+suponiendo que la hipótesis nula fuera cierta. Para Friedman, esta probabilidad se aproxima
+usando una distribución chi-cuadrado con $k-1$ grados de libertad:
+
+\begin{equation}
+p = P(\chi^2_{k-1} \geq \chi^2_F).
+\end{equation}
+
+Como en este caso hay 6 tratamientos, se utilizan:
+
+\begin{equation}
+k-1 = 5
+\end{equation}
+
+grados de libertad. Si el valor $p$ es menor que el nivel de significancia elegido, usualmente $
+\alpha = 0.05$, se rechaza la hipótesis nula.
+
+\begin{table}[H]
+\centering
+\begin{tabular}{lccc}
+\toprule
+Tratamiento & Accuracy promedio & Desv. estándar & Rango medio \\
+\midrule
+TF-IDF + regresión logística & 0.480177 & 0.003060 & 4.933 \\
+BERT + regresión logística & 0.478773 & 0.002447 & 5.333 \\
+SmolLM3 sin shots & 0.497615 & 0.014070 & 2.467 \\
+SmolLM3 + 2 shots & 0.498288 & 0.014151 & 2.533 \\
+Phi-4 mini sin shots & 0.497646 & 0.014093 & 2.567 \\
+Phi-4 mini + 2 shots & 0.489933 & 0.024004 & 3.167 \\
+\bottomrule
+\end{tabular}
+\caption{Resumen de los tratamientos evaluados en la prueba estadística. Como la métrica usada es
+precisión, un rango medio menor representa una mejor posición relativa dentro de las corridas.}
+\label{tab:stat-summary}
+\end{table}
+
+\clearpage
+
+La prueba de Friedman produjo el siguiente resultado:
+
+\begin{equation}
+\chi^2_F = 72.230181,
+\qquad
+p = 3.5174 \times 10^{-14}.
+\end{equation}
+
+Como $p < 0.05$, se rechaza la hipótesis nula. Esto indica que no todos los tratamientos
+presentan el mismo rendimiento. Dicho de otra forma, las diferencias observadas entre los modelos
+no parecen deberse únicamente al azar de las corridas.
+
+Además, se puede calcular el coeficiente de Kendall $W_K$ como tamaño de efecto global de la
+prueba de Friedman:
+
+\begin{equation}
+W_K = \frac{\chi^2_F}{n(k-1)}.
+\end{equation}
+
+Sustituyendo los valores del experimento:
+
+\begin{equation}
+W_K =
+\frac{72.230181}{30(6-1)}
+=
+0.481535.
+\end{equation}
+
+Este valor mide qué tan consistente es el orden relativo de los tratamientos entre corridas. Un
+valor cercano a $0$ indicaría poco acuerdo entre corridas, mientras que un valor cercano a $1$
+indicaría que los tratamientos mantienen casi siempre el mismo orden. En este caso, $W_K =
+0.481535$ sugiere un efecto global apreciable: existe una tendencia clara, aunque todavía hay
+variabilidad entre corridas.
+
+Como Friedman solo indica que existe alguna diferencia global, pero no dice entre cuáles
+tratamientos ocurre, se aplicó una prueba post-hoc de Wilcoxon pareada para cada par de
+tratamientos. Esta prueba compara dos tratamientos a la vez usando las diferencias corrida por
+corrida sin asumir normalidad en las diferencias. Su estadístico se denota como $W$ y se calcula a partir de los rangos de las diferencias
+absolutas entre ambos tratamientos \cite{gibbons2004wilcoxon}.
+
+En esta parte, $W$ no debe confundirse con el coeficiente de Kendall $W_K$. El $W$ de Wilcoxon
+pertenece a una comparación por pares, mientras que $W_K$ resume el tamaño de efecto global de
+Friedman.
+
+Como hay muchas comparaciones por pares, aumenta el riesgo de encontrar una diferencia
+significativa por casualidad. Para controlar ese problema, se aplicó la corrección de Holm usando
+\texttt{multipletests} de \texttt{statsmodels.stats.multitest}. Esta corrección ajusta los
+valores $p$ obtenidos en las comparaciones post-hoc. Por eso, la decisión final se toma con
+$p_{\text{Holm}}$ y no con el valor $p$ crudo.
+
+\begin{table}[H]
+\centering
+\scriptsize
+\begin{adjustbox}{max width=\textwidth}
+\begin{tabular}{lccc}
+\toprule
+Comparación & $W$ & $p_{\text{Holm}}$ & Diferencia significativa \\
+\midrule
+TF-IDF vs BERT & 152.000 & 0.513638 & No \\
+TF-IDF vs SmolLM3 sin shots & 17.000 & $4.62681 \times 10^{-6}$ & Sí \\
+TF-IDF vs SmolLM3 + 2 shots & 19.000 & $6.29015 \times 10^{-6}$ & Sí \\
+TF-IDF vs Phi-4 mini sin shots & 21.000 & $8.32602 \times 10^{-6}$ & Sí \\
+TF-IDF vs Phi-4 mini + 2 shots & 55.000 & 0.000792205 & Sí \\
+BERT vs SmolLM3 sin shots & 12.000 & $1.95578 \times 10^{-6}$ & Sí \\
+BERT vs SmolLM3 + 2 shots & 15.000 & $3.57255 \times 10^{-6}$ & Sí \\
+BERT vs Phi-4 mini sin shots & 15.000 & $3.57255 \times 10^{-6}$ & Sí \\
+BERT vs Phi-4 mini + 2 shots & 53.000 & 0.000711959 & Sí \\
+SmolLM3 sin shots vs SmolLM3 + 2 shots & 231.500 & 1.000000 & No \\
+SmolLM3 sin shots vs Phi-4 mini sin shots & 231.000 & 1.000000 & No \\
+SmolLM3 sin shots vs Phi-4 mini + 2 shots & 138.000 & 0.513638 & No \\
+SmolLM3 + 2 shots vs Phi-4 mini sin shots & 208.000 & 1.000000 & No \\
+SmolLM3 + 2 shots vs Phi-4 mini + 2 shots & 140.000 & 0.403816 & No \\
+Phi-4 mini sin shots vs Phi-4 mini + 2 shots & 151.000 & 0.601753 & No \\
+\bottomrule
+\end{tabular}
+\end{adjustbox}
+\caption{Comparaciones post-hoc mediante Wilcoxon pareado con corrección de Holm. Se considera
+diferencia significativa cuando $p_{\text{Holm}} < 0.05$.}
+\label{tab:posthoc-wilcoxon}
+\end{table}
+
+Los resultados muestran que TF-IDF y BERT no presentan una diferencia estadísticamente
+significativa entre sí, ya que su valor corregido es $p_{\text{Holm}} = 0.513638$. Esto significa
+que, aunque sus promedios no son exactamente iguales, la diferencia no es suficientemente
+consistente en las 30 corridas como para afirmar que uno supera claramente al otro.
+
+En cambio, tanto TF-IDF como BERT sí presentan diferencias significativas frente a las
+configuraciones basadas en LLMs. Esto se observa en los valores $p_{\text{Holm}} < 0.05$ para las
+comparaciones contra SmolLM3 y Phi-4 mini.
+
+Por otro lado, no se encontraron diferencias significativas entre SmolLM3, Phi-4 mini y sus
+variantes con 2 shots. Esto sugiere que, bajo este protocolo experimental, agregar 2 ejemplos
+como few-shot no produjo una mejora estadísticamente distinguible dentro de los LLMs evaluados.
+
+En síntesis, la prueba de Friedman indica que existen diferencias globales entre los
+tratamientos. El análisis post-hoc muestra que esas diferencias se concentran principalmente
+entre los métodos basados en regresión logística y los modelos generativos. Sin embargo, dentro
+de las variantes de LLMs no hay evidencia estadística suficiente para declarar un ganador claro.
+Además, aunque algunas diferencias sean estadísticamente significativas, los valores de precisión
+siguen estando cerca del azar, por lo que la significancia estadística no debe confundirse con un
+rendimiento práctico alto para la tarea de clasificación de complejidad textual.
 
 \section{Conclusiones}
 
