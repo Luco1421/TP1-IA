@@ -34,7 +34,7 @@
 
 \begin{titlepage}
 \centering
-{\includegraphics[width=0.7\textwidth]{logoTEC.png}\par}
+{\includegraphics[width=0.7\textwidth]{img/logoTEC.png}\par}
 \vspace{1cm}
 {\bfseries\Large Segundo Trabajo Práctico\par}
 \vspace{1cm}
@@ -93,7 +93,7 @@ Esta formulación es simple y eficiente, pero impone una restricción fuerte: el
 
 \begin{figure}[H]
 \centering
-\includegraphics[width=0.7\textwidth]{XOR_Perceptron.png}
+\includegraphics[width=0.7\textwidth]{img/XOR_Perceptron.png}
 \caption{Ejemplo conceptual de cómo el XOR no es linealmente separable. El perceptrón para generar esta gráfica fue entrenado por 6000 iteraciones con un alfa de 1.}
 \label{fig:xor}
 \end{figure}
@@ -114,9 +114,9 @@ El entrenamiento del perceptrón actualiza los pesos usando únicamente las mues
 \vec w_{k+1} = \vec w_k - \alpha \nabla E
 \end{equation}
 
-donde $\alpha$ es la tasa de aprendizaje y $E$ la función de error (definir parametros). El teorema de convergencia del perceptrón (tal vez citar) establece que, si los datos son linealmente separables, existe un margen positivo y se usa una tasa de aprendizaje constante, el algoritmo encuentra una solución separadora en un número finito de actualizaciones. La intuición de la demostración es que cada actualización aumenta la alineación entre los pesos y algún vector separador óptimo, mientras que el crecimiento de la norma de los pesos queda acotado; ambas condiciones implican que no puede haber infinitos errores si existe una separación lineal.
+donde $\alpha$ es la tasa de aprendizaje y $E$ la función de error, donde los $X_i \in U$ son las muestras mal clasificadas y $t_i$ con las etiquetas reales. El teorema de convergencia del perceptrón establece que, si los datos son linealmente separables, existe un margen positivo y se usa una tasa de aprendizaje constante, el algoritmo encuentra una solución separadora en un número finito de actualizaciones. La intuición de la demostración es que cada actualización aumenta la alineación entre los pesos y algún vector separador óptimo, mientras que el crecimiento de la norma de los pesos queda acotado; ambas condiciones implican que no puede haber infinitos errores si existe una separación lineal.
 
-En el perceptrón clásico, usar $\alpha = 1$ es suficiente porque la tasa de aprendizaje solo escala el tamaño de las actualizaciones, pero no ajusta la dirección. Para datos linealmente separables, cambiar $\alpha$ modifica la escala de los pesos, pero no necesariamente la orientación de la frontera final. En problemas no separables o en variantes con criterios de parada prácticos, la elección de $\alpha$ sí puede afectar la estabilidad del entrenamiento y el comportamiento observado \cite{}.
+En el perceptrón clásico, usar $\alpha = 1$ es suficiente porque la tasa de aprendizaje solo escala el tamaño de las actualizaciones, pero no ajusta la dirección. Para datos linealmente separables, cambiar $\alpha$ modifica la escala de los pesos, pero no necesariamente la orientación de la frontera final. En problemas no separables o en variantes con criterios de parada prácticos, la elección de $\alpha$ sí puede afectar la estabilidad del entrenamiento y el comportamiento observado \cite{murphy2017verified}.
 
 \section{Regresión logística}
 
@@ -138,7 +138,7 @@ La implementación de regresión logística se construye usando como base la est
 \begin{table}[H]
   \centering
   \begin{tabular}{p{0.22\textwidth}p{0.32\textwidth}p{0.32\textwidth}}
-    \multicolumn{3}{c}{Diferencias principales entre perceptrón y regresión logística} \\ 
+    \multicolumn{3}{c}{Diferencias principales entre perceptrón y regresión logística} \\
     \toprule
     Componente & Perceptrón & Regresión logística \\
     \midrule
@@ -149,7 +149,7 @@ La implementación de regresión logística se construye usando como base la est
     Interpretación & Separador lineal binario. & Separador lineal probabilístico. \\
     \bottomrule
   \end{tabular}
-  \caption{}
+  \caption{Tabla con principales diferencias entre el algoritmo de perceptrón y regresión logística}
 \end{table}
 
 En el perceptrón, la función de activación puede representarse como:
@@ -197,7 +197,7 @@ Esta formulación es más informativa que la actualización del perceptrón para
 
 \subsection{Condición de Parada Temprana (Early Stopping)}
 \label{sec::early_stop}
-Para la implementación de la regresión logística, se utilizó el método de la Parada Temprana (Early Stopping). La historia del concepto se remonta a 1970 en donde se trabaja con el algoritmo de Landweber, para resolver problemas inversos mal planteados \cite{Raskutti2013}. ``Early Stopping'' es una técnica que busca evitar el sobreajuste (Overfitting), por lo general, se implementa sobre un conjunto de validación, el cual es independiente tanto del conjunto de entrenamiento como del de prueba \cite{choi2022early}. La principal ventaja de implementar ``Early Stopping'' es la disminucíon obtenida en el costo computacional \cite{Raskutti2013}. 
+Para la implementación de la regresión logística, se utilizó el método de la Parada Temprana (Early Stopping). La historia del concepto se remonta a 1970 en donde se trabaja con el algoritmo de Landweber, para resolver problemas inversos mal planteados \cite{Raskutti2013}. ``Early Stopping'' es una técnica que busca evitar el sobreajuste (Overfitting), por lo general, se implementa sobre un conjunto de validación, el cual es independiente tanto del conjunto de entrenamiento como del de prueba \cite{choi2022early}. La principal ventaja de implementar ``Early Stopping'' es la disminución obtenida en el costo computacional \cite{Raskutti2013}.
 
 Para la implementación de la regresión logística se optó por un método numérico llamado criterio de convergencia por cambio en la solución. Debido a las propiedades del cálculo diferencial, se sabe que la derivada de una función tiende a cero cuando el algoritmo se aproxima a un mínimo local. Por esta razón, se define un valor umbral $\epsilon$ y se detiene el entrenamiento cuando la magnitud de la derivada respecto a w es menor que dicho valor.
 
@@ -252,16 +252,16 @@ Esta recta se superpone al diagrama de dispersión para visualizar la separació
 \centering
 \begin{subfigure}{0.527\textwidth}
     \centering
-    \includegraphics[width=1\linewidth]{0.png}
+    \includegraphics[width=1\linewidth]{img/0.png}
     \caption{Superficie de decisión.}
 \end{subfigure}
 \hfill
 \begin{subfigure}{0.463\textwidth}
     \centering
-    \includegraphics[width=1\linewidth]{1.png}
+    \includegraphics[width=1\linewidth]{img/1.png}
     \caption{Error por iteración.}
 \end{subfigure}
-\caption{Resultados visuales para datos linealmente separables. El entrenamiento se realizó con un máximo de 250 iteraciones. En la imagen izquieda, se tiene el diagrama de dispersión donde los puntos amarillos pertenecen a la clase 1 y los puntos morados a la clase 0, esto corresponde al $30\%$ de los datos generados. La recta azul es la obtenida tras el calculo mostrado en la ecuación \ref{ec::recta}. Se puede observar que la superficie de decisión separa de forma correcta estas muestras que no se usaron para el entrenamiento, y que se encuentra a una distancia media de ambas clases. 
+\caption{Resultados visuales para datos linealmente separables. El entrenamiento se realizó con un máximo de 250 iteraciones. En la imagen izquierda, se tiene el diagrama de dispersión donde los puntos amarillos pertenecen a la clase 1 y los puntos morados a la clase 0, esto corresponde al $30\%$ de los datos generados. La recta azul es la obtenida tras el cálculo mostrado en la ecuación \ref{ec::recta}. Se puede observar que la superficie de decisión separa de forma correcta estas muestras que no se usaron para el entrenamiento, y que se encuentra a una distancia media de ambas clases.
 La imagen de la derecha, muestra la gráfica de error del modelo a lo largo de las 250 iteraciones de entrenamiento, la cual decrece rápidamente en las primeras iteraciones para estabilizarse aproximadamente en la iteración 50.}
 \end{figure}
 
@@ -276,26 +276,26 @@ En este caso, una frontera lineal resulta insuficiente para separar por completo
 \centering
 \begin{subfigure}{0.535\textwidth}
     \centering
-    \includegraphics[width=1\linewidth]{2.png}
+    \includegraphics[width=1\linewidth]{img/2.png}
     \caption{Superficie de decisión.}
 \end{subfigure}
 \hfill
 \begin{subfigure}{0.455\textwidth}
     \centering
-    \includegraphics[width=1\linewidth]{3.png}
+    \includegraphics[width=1\linewidth]{img/3.png}
     \caption{Error por iteración.}
 \end{subfigure}
-\caption{Resultados visuales para datos no linealmente separables. El entrenamiento se realizó con un máximo de 250 iteraciones. En la imagen izquieda, se tiene el diagrama de dispersión donde los puntos amarillos pertenecen a la clase 1, los puntos morados a la clase 0 y representan el $30\%$ de las muestras generadas, el resto se utilizó para entrenar. La recta azul es la obtenida tras el entrenamiento y el calculo mostrado en la ecuación \ref{ec::recta}. En este caso un modelo lineal no es suficiente para separar los datos, por lo que una parte queda al lado contrario de la superficie de decisión.
-La imagen de la derecha, muestra la gráfica de error del modelo a lo largo de las 250 iteraciones de entrenamiento, la cual se asemeja más a una línea, lo que quiere decir que al modelo se le dificulta más clasificar los datos. 
+\caption{Resultados visuales para datos no linealmente separables. El entrenamiento se realizó con un máximo de 250 iteraciones. En la imagen izquierda, se tiene el diagrama de dispersión donde los puntos amarillos pertenecen a la clase 1, los puntos morados a la clase 0 y representan el $30\%$ de las muestras generadas, el resto se utilizó para entrenar. La recta azul es la obtenida tras el entrenamiento y el cálculo mostrado en la ecuación \ref{ec::recta}. En este caso un modelo lineal no es suficiente para separar los datos, por lo que una parte queda al lado contrario de la superficie de decisión.
+La imagen de la derecha, muestra la gráfica de error del modelo a lo largo de las 250 iteraciones de entrenamiento, la cual se asemeja más a una línea, lo que quiere decir que al modelo se le dificulta más clasificar los datos.
 }
 \end{figure}
 
 \subsection{Resultados del entrenamiento}
-A continuación se presenta los datos obtenidos de entrenar el modelo de regresión logística con los datos no y linealmente separables. El entrenamiento se llevó a cabo con el críterio explicado en la sección \ref{sec::early_stop}, con un máximo de 250 iteraciones y con el 70\% del dataset generado.
+A continuación se presenta los datos obtenidos de entrenar el modelo de regresión logística con los datos no y linealmente separables. El entrenamiento se llevó a cabo con el criterio explicado en la sección \ref{sec::early_stop}, con un máximo de 250 iteraciones y con el 70\% del dataset generado.
 
 \begin{table}[H]
     \centering
-    \begin{adjustbox}{center} 
+    \begin{adjustbox}{center}
     \begin{tabular}{lllll}
     \multicolumn{5}{c}{Tabla comparativa del entrenamiento con datos no y linealmente separables} \\
     \toprule
@@ -352,7 +352,7 @@ Antes de fijar una configuración para TF-IDF se realizó una comparación explo
 
 Una decisión importante fue probar expresiones regulares con y sin números. Para ello se usaron dos patrones principales: \texttt{[\textasciicircum\textbackslash W\_]+}, que conserva secuencias alfanuméricas, y \texttt{[a-záéíóúñü]+}, que conserva solamente letras. Esta diferencia es relevante porque los textos financieros contienen porcentajes, montos, fechas y referencias numéricas; sin embargo, también existe el riesgo de que los números introduzcan ruido o vocabulario demasiado específico para un conjunto de datos pequeño. Por esta razón, no se asumió de antemano que conservar números fuera mejor: se evaluaron ambas opciones.
 
-El flujo de preprocesamiento fue: tokenizador $\rightarrow$ stopwords $\rightarrow$ lematizador. Es por ello que se probaron las combinaciones de tokenizar (regex, nltk, etc), con las diferentes formas de eliminar stopwords (nltk, spacy, etc) y cada lematizador, para poder compara cuál configuración tenía el mejor resultado.
+El flujo de preprocesamiento fue: tokenizador $\rightarrow$ stopwords $\rightarrow$ lematizador. Es por ello que se probaron las combinaciones de tokenizar (regex, nltk, etc), con las diferentes formas de eliminar stopwords (nltk, spacy, etc) y cada lematizador, para poder comparar qué configuración tenía el mejor resultado.
 
 Para evitar que la comparación dependiera de una única partición del conjunto de datos, cada alternativa se evaluó con varias semillas $(101, 202, 303)$. En cada semilla se entrenó la misma regresión logística y una tasa de aprendizaje fija. De esta forma, la comparación distingue mejor entre la calidad de la representación textual y no una mala elección accidental de la tasa de aprendizaje. Adicional, se prueba por una cantidad de 500 iteraciones con un subconjunto de FEINA de 30 datos, separados en 15 textos complejos y 15 simples.
 
@@ -404,7 +404,7 @@ Para la calibración se utilizó un rango acotado de valores de $\alpha$ definid
 
 Por esta razón, la calibración de $\alpha$ se realizó dentro de un intervalo acotado por la constante de Lipschitz. De esta forma, la selección final del parámetro combina una restricción teórica, derivada del comportamiento del gradiente, con una elección empírica basada en el desempeño observado del modelo.
 
-Para el reporte final del entrenamiento de regresión logística con TFIDF escogimos la cofiguración de Stanza, específicamente tokenizador Stanza sin números, stopwords de NLTK y lematizador de stanza, ya que esta configuración obtuvo una mejor precisión en promedio. Esto no quiere decir que otra configuración no sea válida, ya que vemos resultados similares entre varias configuraciones y algunas que ellas como regex + simplemma pueden mejorar el rendimiento al ser un procesamiento menos costoso, más rápido y aún así nos da resultados aceptables, es decir, cercanos a los resultados de sus competidores pero a una cuota de rendimiento más baja que en muchas ocasiones es preferible. \\
+Para el reporte final del entrenamiento de regresión logística con TF-IDF escogimos la configuración de Stanza, específicamente tokenizador Stanza sin números, stopwords de NLTK y lematizador de Stanza, ya que esta configuración obtuvo una mejor precisión en promedio. Esto no quiere decir que otra configuración no sea válida, ya que vemos resultados similares entre varias configuraciones y algunas de ellas como regex + simplemma pueden mejorar el rendimiento al ser un procesamiento menos costoso, más rápido y aún así nos da resultados aceptables, es decir, cercanos a los resultados de sus competidores pero a una cuota de rendimiento más baja que en muchas ocasiones es preferible. \\
 
 \subsubsection{Análisis de la lematización y la extracción de ``stopwords''}
 
@@ -491,7 +491,7 @@ reunir & 0 & 0.375958 \\
 virtual & 0.189652 & 0.267497 \\
 \bottomrule
 \end{tabular}
-\caption{En esta tabla se puede observar que hay ciertas palabras que se encuentran en ambos documentos. Además palabras como `acopio', `contrucción', `haber', `hacer', `proceder' y `reunir' se les asigna un peso mayor al solo presentarse en alguno de los dos documentos. De hecho, el verbo `haber' solo se presenta en el documento 0 pero lo hace en dos ocaciones, obteniendo un valor mucho mayor. A su vez, se puede observar que el resto de palabras que se encuentran en ambos documentos, presentan un menor peso en proporción a la cantidad de tokens en cada documento.}
+\caption{En esta tabla se puede observar que hay ciertas palabras que se encuentran en ambos documentos. Además palabras como `acopio', `construcción', `haber', `hacer', `proceder' y `reunir' se les asigna un peso mayor al solo presentarse en alguno de los dos documentos. De hecho, el verbo `haber' solo se presenta en el documento 0 pero lo hace en dos ocasiones, obteniendo un valor mucho mayor. A su vez, se puede observar que el resto de palabras que se encuentran en ambos documentos, presentan un menor peso en proporción a la cantidad de tokens en cada documento.}
 \end{table}
 
 
@@ -517,13 +517,13 @@ Precisión promedio & 0.5740275979042053 \\
 
 \begin{figure}[H]
 \centering
-\includegraphics[width=0.7\textwidth]{aprendizaje_tfidf.png}
+\includegraphics[width=0.7\textwidth]{img/aprendizaje_tfidf.png}
 \caption{Gráfica de aprendizaje del entrenamiento con el $70\%$ del dataset por 200 iteraciones y $\alpha=1$. En el eje X se muestra el número de iteración y en el eje Y el valor MAE. La gráfica primero tiene un decrecimiento pronunciado y después se asemeja a una línea, y el rango del error $[0.48, 0.488]$ indica que el modelo no tiene mucha certeza.}
-\label{fig:ap-bert}
+\label{fig:ap-tfidf}
 \end{figure}
 
 
-Los resultados presentados en la tabla \ref{tab:tfidf-results} muestran como con el dataset completo de 10624 entradas, donde 5312 son etiquetas complejas y 5312 son etiquetas simples, tiene una precisión promedio de $\approx 0.56$ que nos indica que tiene un rendimiento limitado, ya que apenas supera el $50\%$ de aciertos, haciendo que no podamos notar un rendimiento mucho más alto que únicamente clasificar al azar.
+Los resultados presentados en la tabla \ref{tab:tfidf-results} muestran que, con el dataset completo de 10624 entradas, donde 5312 son etiquetas complejas y 5312 son etiquetas simples, tiene una precisión promedio de $\approx 0.56$ que nos indica que tiene un rendimiento limitado, ya que apenas supera el $50\%$ de aciertos, haciendo que no podamos notar un rendimiento mucho más alto que únicamente clasificar al azar.
 
 \section{Regresión logística con vectores empotrados}
 
@@ -548,7 +548,7 @@ La proyección transforma cada documento en un vector de dimensión fija. La ide
 Esta representación se evaluó como una alternativa a TF-IDF. Mientras TF-IDF se basa en frecuencia de términos y puede funcionar muy bien cuando ciertas palabras distinguen clases, los embeddings permiten aprovechar conocimiento aprendido previamente por modelos entrenados en grandes corpus. Por ejemplo, dos textos financieros pueden usar vocabulario distinto pero expresar una idea parecida; una representación densa puede capturar parte de esa relación mejor que una bolsa de palabras. Por eso ambos enfoques se comparan: no porque uno sea una extensión directa del otro, sino porque representan dos maneras distintas de alimentar el mismo clasificador.
 
 Una forma de realizar esto es con bibliotecas como BERT (Bidirectional Encoder Representations
-from Transformers, por sus siglas en inglés), que es una variante bidireccional de las ``Tranformers networks'', entrenada para predecir conjuntamente si una palabra enmascarada de su contexto y para clasificar si dos oraciones son consecutivas o no \cite{jawahar2019bert}.
+from Transformers, por sus siglas en inglés), que es una variante bidireccional de las ``Transformers networks'', entrenada para predecir conjuntamente si una palabra enmascarada de su contexto y para clasificar si dos oraciones son consecutivas o no \cite{jawahar2019bert}.
 
 A partir de BERT han surgido variantes entrenadas o adaptadas para distintos idiomas y corpus. En el caso del español, BETO puede entenderse como una versión de BERT entrenada específicamente con textos en español, por lo que sus representaciones están mejor ajustadas a las características del idioma. De forma similar, RoBERTa es una variante de la familia BERT que modifica algunos aspectos del entrenamiento original para mejorar la calidad de las representaciones; en este trabajo se utiliza una versión entrenada para el español. Por esta razón, además del modelo multilingüe, se comparan BETO y RoBERTa como alternativas especializadas para representar textos en español.
 
@@ -571,7 +571,7 @@ Modelo & Dimensiones \\
 \label{tab:Bert-models}
 \end{table}
 
-Para la siguiente comparación se utilizó el mismo principio de comparación de TFIDF, se estableció un alpha fijo de $\alpha = 0.01$ y se evaluó el modelo por $500$ iteraciones con 30 muestra por iteración, para comparar justamente los modelos, además se realizaron corridas con $3$ seed distintos $(101, 202, 303)$ y se registraron los datos de la mejor corrida (menor MAE, mayor precisión). Para la calibración se usaron $5$ corridas y un rango acotado de alpha definido por la técnica de lipschitz.
+Para la siguiente comparación se utilizó el mismo principio de comparación de TF-IDF, se estableció un alpha fijo de $\alpha = 0.01$ y se evaluó el modelo por $500$ iteraciones con 30 muestras por iteración, para comparar justamente los modelos, además se realizaron corridas con $3$ semillas distintas $(101, 202, 303)$ y se registraron los datos de la mejor corrida (menor MAE, mayor precisión). Para la calibración se usaron $5$ corridas y un rango acotado de alpha definido por la técnica de Lipschitz.
 \begin{table}[H]
 \centering
 \label{tab:resultados_embeddings}
@@ -608,12 +608,12 @@ Precisión & 0.576537013053894 \\
 Dimensión del vector & 512 \\
 \bottomrule
 \end{tabular}
-\caption{En la tabla se muestra los resultados de la evaluación de la regresión logística, con el $30\%$ del dataset, alimentada con los vectores empotrados del \texttt{SentenceTransformer}. En la primera columna se encuentran las métricas evaluadas (MAE, precisión y dimensión del vector) y en la segunda columna se presentan los valores obtenidos. La superioridad del modelo BERT frente al TF-IDF queda reflejada en su mayor precisión y menor valor MAE, aunque no hay un diferencia significativa. }
+\caption{En la tabla se muestra los resultados de la evaluación de la regresión logística, con el $30\%$ del dataset, alimentada con los vectores empotrados del \texttt{SentenceTransformer}. En la primera columna se encuentran las métricas evaluadas (MAE, precisión y dimensión del vector) y en la segunda columna se presentan los valores obtenidos. La superioridad del modelo BERT frente al TF-IDF queda reflejada en su mayor precisión y menor valor MAE, aunque no hay una diferencia significativa.}
 \end{table}
 
 \begin{figure}[H]
 \centering
-\includegraphics[width=0.7\textwidth]{aprendizaje_bert.png}
+\includegraphics[width=0.7\textwidth]{img/aprendizaje_bert.png}
 \caption{Gráfica de aprendizaje del entrenamiento con el $70\%$ del dataset por 200 iteraciones. En el eje X se muestra el número de iteración y en el eje Y el valor MAE. La gráfica se asemeja a una línea, y el rango del error $[0.475, 0.5]$ indica que el modelo no tiene mucha certeza, aunque es un poco mejor que el modelo con TF-IDF.}
 \label{fig:ap-bert}
 \end{figure}
@@ -720,7 +720,7 @@ Documento & Etiqueta real & SmolLM3 & Phi-4 mini \\
 2 & \claseSimple & 1 & 1 \\
 \bottomrule
 \end{tabular}
-\caption{La tabla presenta las respuestas generadas por ambos LLM's. La primer columna es el ID del documento respectivo y la segunda columna representa la clasificación esperada. La tercera y cuarta columna representan las predicciones de SmolLM3 y Phi-4 mini, respectivamente.
+\caption{La tabla presenta las respuestas generadas por ambos LLMs. La primera columna es el ID del documento respectivo y la segunda columna representa la clasificación esperada. La tercera y cuarta columna representan las predicciones de SmolLM3 y Phi-4 mini, respectivamente.
 Basado en los resultados, SmolLM3 se muestra superior al tener una precisión de $0.\overline{6}$ mientras que Phi-4 mini tiene una precisión de 0.}
 \label{tab::eje_sinshots}
 \end{table}
@@ -740,7 +740,7 @@ SmolLM3 & 0.49136902 & 56m41s \\
 Phi-4 mini & 0.51009483 & 26m55s \\
 \bottomrule
 \end{tabular}
-\caption{En esta tabla tenemos en la primer columna el nombre del modelo LLM utilizado para la prueba con el dataset completo, en la segunda columna el resultado de la precisión obtenido luego de la ejecución con el dataset completo y en la última columna el tiempo que demoró en ejecutarse. En la tabla se puede apreciar que la diferencia entre la precisión de ambos modelos no es sustancial, ambos modelos aproximan un 50\%, lo cuál es un poco bajo en comparación con otros resultados como regresión logística con TFIDF o embeddings}
+\caption{En esta tabla tenemos en la primera columna el nombre del modelo LLM utilizado para la prueba con el dataset completo, en la segunda columna el resultado de la precisión obtenido luego de la ejecución con el dataset completo y en la última columna el tiempo que demoró en ejecutarse. En la tabla se puede apreciar que la diferencia entre la precisión de ambos modelos no es sustancial, ambos modelos aproximan un 50\%, lo cual es un poco bajo en comparación con otros resultados como regresión logística con TF-IDF o embeddings}
 \end{table}
 
 Estos resultados pueden parecer bajos, sin embargo se debe entender que son resultados sin fase de entrenamiento, es decir, los modelos no se habían enfrentado a esos textos anteriormente y tampoco tiene ejemplos para poder deducir un resultado correcto.
@@ -799,7 +799,7 @@ Documento & Etiqueta real & SmolLM3 & Phi-4 mini & SmolLM3 & Phi-4 mini & SmolLM
 \bottomrule
 \end{tabular}
 \end{adjustbox}
-\caption{La tabla presenta las respuestas generadas por ambos LLM's. La primer columna es el ID del documento respectivo y la segunda columna representa la clasificación esperada. La tercera y cuarta columna representan las predicciones de SmolLM3 y Phi-4 mini, respectivamente. Los resultados muestran que SmolLM3 no parece verse afectado por la cantidad de shots proporcionados; incluso, no se observan diferencias entre utilizar shots y no utilizarlos, tabla \ref{tab::eje_sinshots}. SmolLM3 obtuvo una precisión de $0.\overline{6}$. En el caso de Phi-4 mini, si se observa una mejora respecto a lo mostrado sin few shots (tabla \ref{tab::eje_sinshots}), obteniendo el mejor resultado con 4 shots, con una precisión del $0.\overline{6}$ en comparación con el $0.\overline{3}$ de 2 y 7 shots.}
+\caption{La tabla presenta las respuestas generadas por ambos LLMs. La primera columna es el ID del documento respectivo y la segunda columna representa la clasificación esperada. La tercera y cuarta columna representan las predicciones de SmolLM3 y Phi-4 mini, respectivamente. Los resultados muestran que SmolLM3 no parece verse afectado por la cantidad de shots proporcionados; incluso, no se observan diferencias entre utilizar shots y no utilizarlos, tabla \ref{tab::eje_sinshots}. SmolLM3 obtuvo una precisión de $0.\overline{6}$. En el caso de Phi-4 mini, sí se observa una mejora respecto a lo mostrado sin few shots (tabla \ref{tab::eje_sinshots}), obteniendo el mejor resultado con 4 shots, con una precisión del $0.\overline{6}$ en comparación con el $0.\overline{3}$ de 2 y 7 shots.}
 \end{table}
 
 \subsubsection{Ejecución con el dataset completo}
@@ -817,11 +817,11 @@ SmolLM3 & 0.49706518381217174 & 0.4851085310449268 & 0.48815086782376504 & 1h25m
 Phi-4 mini & 0.49785539215686275 & 0.4958639705882353 & 0.508962770032174 & 1h23m\\
 \bottomrule
 \end{tabular}
-\caption{La tabla presenta la precisión obtenida tras ejecutar ambos LLM's con 2,4 y 7 shots. Los resultados obtenidos muestra que SmolLM3 se comporta mejor con 2 shots y Phi-4 mini obtiene la mayor precisión con 7 shots. Adicionalmente, se observa que ambos modelos con 4 shots experimentan una leve disminución en su precisión. La columna de tiempo muestra el tiempo total de la corrida con todas las configuraciones de shots.}
+\caption{La tabla presenta la precisión obtenida tras ejecutar ambos LLMs con 2,4 y 7 shots. Los resultados obtenidos muestran que SmolLM3 se comporta mejor con 2 shots y Phi-4 mini obtiene la mayor precisión con 7 shots. Adicionalmente, se observa que ambos modelos con 4 shots experimentan una leve disminución en su precisión. La columna de tiempo muestra el tiempo total de la corrida con todas las configuraciones de shots.}
 \label{tab:with-shots}
 \end{table}
 
-Según la tabla \ref{tab:with-shots} podemos notar un resultado interesante y es que no mejora sustancialmente respecto a una configuración sin shots, con el dataset completo, de hecho podemos observar que la corrida con 2 shots logró el resultado mejor a otras configuraciones en SmolLM3 y la segunda mejor con Phi-4 mini.
+Según la tabla \ref{tab:with-shots} podemos notar un resultado interesante y es que no mejora sustancialmente respecto a una configuración sin shots, con el dataset completo, de hecho podemos observar que la corrida con 2 shots logró un mejor resultado que otras configuraciones en SmolLM3 y la segunda mejor con Phi-4 mini.
 
 \section{Prueba completa}
 
@@ -861,29 +861,29 @@ Phi-4 mini + 2 Shots & 0.4899 & 0.0240 \\
 \centering
 \begin{subfigure}{0.527\textwidth}
     \centering
-    \includegraphics[width=1\linewidth]{accuracy_bert.png}
+    \includegraphics[width=1\linewidth]{img/accuracy_bert.png}
     \caption{BERT Embeddings}
 \end{subfigure}
 \hfill
 \begin{subfigure}{0.463\textwidth}
     \centering
-    \includegraphics[width=1\linewidth]{accuracy_tfidf.png}
+    \includegraphics[width=1\linewidth]{img/accuracy_tfidf.png}
     \caption{TF-IDF}
 \end{subfigure}
-\caption{Gráficas de la precisión de los modelos LLM sin few-shots por cada corrida de las 30 en total. En la parte izquierda se presenta el modelo de BERT y en la derecha TF-IDF. Ambos tienen un rango de precisión y comportamiento similar. TF-IDF alcanza un máximo mayor y BERT tiene un mínimo menor.}
+\caption{Gráficas de la precisión de los modelos de clasificación por cada corrida de las 30 en total. En la parte izquierda se presenta el modelo de BERT y en la derecha TF-IDF. Ambos tienen un rango de precisión y comportamiento similar. TF-IDF alcanza un máximo mayor y BERT tiene un mínimo menor.}
 \end{figure}
 
 \begin{figure}[H]
 \centering
 \begin{subfigure}{0.527\textwidth}
     \centering
-    \includegraphics[width=1\linewidth]{accuracy_smollm3.png}
+    \includegraphics[width=1\linewidth]{img/accuracy_smollm3.png}
     \caption{SmolLM3}
 \end{subfigure}
 \hfill
 \begin{subfigure}{0.463\textwidth}
     \centering
-    \includegraphics[width=1\linewidth]{accuracy_phi4.png}
+    \includegraphics[width=1\linewidth]{img/accuracy_phi4.png}
     \caption{Phi-4 mini}
 \end{subfigure}
 \caption{Gráficas de la precisión de los modelos LLM sin few-shots por cada corrida de las 30 en total. En la parte izquierda se presenta el modelo SmolLM3 y en la derecha Phi-4 mini. Ambos tienen un rango de precisión bastante similar, sin embargo, Phi-4 parece tener algo más de estabilidad pero alcanza un mínimo menor y un máximo mayor a los de SmolLM3.}
@@ -893,19 +893,19 @@ Phi-4 mini + 2 Shots & 0.4899 & 0.0240 \\
 \centering
 \begin{subfigure}{0.527\textwidth}
     \centering
-    \includegraphics[width=1\linewidth]{accuracy_smollm3_2.png}
+    \includegraphics[width=1\linewidth]{img/accuracy_smollm3_2.png}
     \caption{SmolLM3}
 \end{subfigure}
 \hfill
 \begin{subfigure}{0.463\textwidth}
     \centering
-    \includegraphics[width=1\linewidth]{accuracy_phi4_2.png}
-    \caption{Phi-4 mini}
+    \includegraphics[width=1\linewidth]{img/accuracy_phi4_2.png}
+    \caption{Phi4-mini}
 \end{subfigure}
-\caption{Gráficas de la precisión de los modelos LLM con una configuración de few-shots de 2 por cada corrida de las 30 en total. En la parte izquierda se presenta el modelo SmolLM3 y en la derecha Phi-4 mini. Phi-4 muestra algo de estabilidad en el rango de precisión $[0.48, 0.52]$ pero alcanza un mínimo considerablemente más bajos que los demás modelos, esto explica porque es el que tiene mayor desviación estándar de todos. Por otro lado, SmolLM3 muestra buena precisión durante las iteraciones comparado con otros.}
+\caption{Gráficas de la precisión de los modelos LLM con una configuración de few-shots de 2 por cada corrida de las 30 en total. En la parte izquierda se presenta el modelo SmolLM3 y en la derecha Phi-4 mini. Phi-4 muestra algo de estabilidad en el rango de precisión $[0.48, 0.52]$ pero alcanza un mínimo considerablemente más bajo que los demás modelos, esto explica por qué es el que tiene mayor desviación estándar de todos. Por otro lado, SmolLM3 muestra buena precisión durante las iteraciones comparado con otros.}
 \end{figure}
 
-En la tabla \ref{tab:final-results} podemos derivar que aunque los tratamientos de TF-IDF y embeddings mostraban mejores resultados en el dataset completo con una corrida, luego de las 30 corridas con los datos aleatorios, hizo que su precisión bajara considerablemente al punto que establecer una diferencia clara entre cual tratamiento usar para tener mejores resultados es una tarea difícil. Otros datos que caben resaltar son que el modelo con mayor precisión media fue SmolLM3, mientras que mantuvo la menor desviación estándar media fue el tratamiento de regresión logística con TFIDF.
+En la tabla \ref{tab:final-results} podemos derivar que aunque los tratamientos de TF-IDF y embeddings mostraban mejores resultados en el dataset completo con una corrida, luego de las 30 corridas con los datos aleatorios, hizo que su precisión bajara considerablemente al punto que establecer una diferencia clara entre cuál tratamiento usar para tener mejores resultados es una tarea difícil. Otros datos que caben resaltar son que el modelo con mayor precisión media fue SmolLM3, mientras que mantuvo la menor desviación estándar media fue el tratamiento de regresión logística con TF-IDF.
 
 \section{Prueba estadística}
 
@@ -973,7 +973,7 @@ Los tratamientos evaluados fueron:
   \bottomrule
   \end{tabular}
   \end{adjustbox}
-  \caption{Valores de precisión usados en la prueba estadística. Cada fila representa una corrida, corresponde tambi;en al valor del seed en la corrida y
+  \caption{Valores de precisión usados en la prueba estadística. Cada fila representa una corrida, corresponde también al valor del seed en la corrida y
   cada columna un tratamiento.}
   \label{tab:stat-all-runs}
   \end{table}
@@ -1172,7 +1172,7 @@ rendimiento práctico alto para la tarea de clasificación de complejidad textua
 
 Este trabajo compara representaciones clásicas, representaciones semánticas y modelos generativos instruidos para la clasificación de complejidad textual en español financiero. La estructura experimental permite observar no solo qué modelo obtiene mejores métricas, sino también qué tipo de representación resulta más adecuada para un dominio especializado y sensible a decisiones lingüísticas como tokenización, eliminación de palabras vacías y lematización.
 
-Como conclusión, no podemos determinar un mejor modelo para la tarea, ya que todos los modelos utilizan métodos diferentes para intentar clasificar los datos. Pero podemos analizar los resultados obtenidos, por ejemplo, para regresión logística con vectores empotrados si se notó una precisión bastate más alta que otros tratamientos, aunque al final la brecha fue disminuyendo. Por parte del tfidf aunque la idea de clasificar textos entre simples y complejos utilizando la frecuencia de los términos es buena, en la práctica no resultó de la mejor forma, porque aunque en la prueba con el dataset completo \ref{tab:tdidf-results}. En las 30 corridas también bajó considerablemente su precisión. Tampoco podemos discriminar el uso de LLMs, ya que siendo justos, no pasa por un proceso de entrenamiento controlado por nosotros mismos para el problema de clasificación, únicamente utiliza su preentenamiento para intentar resolver tareas de otros ámbitos y esto es una clara desventaja, además el costo computacional y tiempo que se demora estos tratamientos, es demasiado y sus resultados no son favorables. Lo mismo pasa con TDIDF, aunque claramente es menos costoso que LLMs, sigue siendo costoso en términos de tiempo, por lo que podemos decir que el mejor tratamiento en relación a precisión y velocidad es regresión logística con vectores empotrados, aunque no por decir que concluímos que fue el mejor desde el punto de vista de tiempo, signifique que cumplió bien su trabajo, ya que una precisión del 50\% roza el azar y no podemos considerar un buen clasificador de textos complejos/simples con estas precisiones.
+Como conclusión, no podemos determinar un mejor modelo para la tarea, ya que todos los modelos utilizan métodos diferentes para intentar clasificar los datos. Pero podemos analizar los resultados obtenidos, por ejemplo, para regresión logística con vectores empotrados si se notó una precisión bastante más alta que otros tratamientos, aunque al final la brecha fue disminuyendo. Por parte del TF-IDF aunque la idea de clasificar textos entre simples y complejos utilizando la frecuencia de los términos es buena, en la práctica no resultó de la mejor forma, porque aunque en la prueba con el dataset completo \ref{tab:tfidf-results}. En las 30 corridas también bajó considerablemente su precisión. Tampoco podemos discriminar el uso de LLMs, ya que siendo justos, no pasa por un proceso de entrenamiento controlado por nosotros mismos para el problema de clasificación, únicamente utiliza su preentrenamiento para intentar resolver tareas de otros ámbitos y esto es una clara desventaja, además el costo computacional y tiempo que se demora estos tratamientos, es demasiado y sus resultados no son favorables. Lo mismo pasa con TDIDF, aunque claramente es menos costoso que LLMs, sigue siendo costoso en términos de tiempo, por lo que podemos decir que el mejor tratamiento en relación a la precisión que ofrece respecto a su tiempo de ejecución es regresión logística con vectores empotrados, aunque no por decir que concluimos que fue el mejor desde el punto de vista de tiempo, signifique que cumplió bien su trabajo, ya que una precisión del 50\% roza el azar y no podemos considerar un buen clasificador de textos complejos/simples con estas precisiones.
 
 \bibliographystyle{IEEEtran}
 \bibliography{references}

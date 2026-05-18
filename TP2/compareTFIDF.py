@@ -12,8 +12,6 @@ from nltk.corpus import stopwords, wordnet
 from nltk.tokenize import word_tokenize
 from sklearn.feature_extraction.text import TfidfVectorizer
 
-from TP2 import DEVICE, Dataset, TrainRegression, train_test_split
-
 
 REGEX_NUMBERS = r"[^\W_]+"
 REGEX_LETTERS = r"[a-záéíóúñü]+" # para no incluir numeros
