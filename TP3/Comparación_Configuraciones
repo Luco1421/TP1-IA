@@ -1,0 +1,10 @@
+\begin{tabular}{ll}
+\toprule
+Configuración & Error \\
+\midrule
+M : 20, Gamma : 0.9 & 0.206309 \\
+M : 20, Gamma : 0 & 0.199362 \\
+M : 2, Gamma : 0.9 & 0.249712 \\
+M : 2, Gamma : 0 & 0.228944 \\
+\bottomrule
+\end{tabular}
