@@ -69,7 +69,8 @@ class Visualization :
 
         def prediction(X):
             H = sigmoid(X @ W1)
-            Y = sigmoid(H @ W2)
+            H_bias = np.c_[np.ones(H.shape[0]), H]
+            Y = sigmoid(H_bias @ W2)
             return Y
 
         xx, yy = np.meshgrid(
@@ -212,7 +213,7 @@ class DatasetGenerator:
         """
 
         # Generate moon-shaped dataset with noise
-        x,y = make_moons(n_samples=n, noise=0.09, random_state=seed)
+        x,y = make_moons(n_samples=n, noise=0.08, random_state=seed)
 
         # Convert dataset to PyTorch tensors
         x_tensor = torch.tensor(x, dtype=TYPE, device = DEVICE)
@@ -230,7 +231,7 @@ class DatasetGenerator:
         """
 
         # Generate clustered dataset
-        x, y = make_blobs(n_samples=n, centers=2, random_state=seed, cluster_std=0.5)
+        x, y = make_blobs(n_samples=n, centers=2, random_state=seed, cluster_std=0.3)
 
         # Convert dataset to PyTorch tensors
         x_tensor = torch.tensor(x, dtype=TYPE, device = DEVICE)
