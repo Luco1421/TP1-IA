@@ -7,8 +7,8 @@ from sklearn.datasets import make_moons, make_blobs
 from sklearn.model_selection import train_test_split
 
 TYPE = torch.float32
-# DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
-DEVICE = "cpu"
+DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
+# DEVICE = "cpu"
 
 class Visualization :
     """! Utility class for data visualization.
@@ -57,29 +57,31 @@ class Visualization :
         # Display plot
         plt.show()
 
-    def make_decision_boundary_plot(self, W_o : torch.Tensor, W_s : torch.Tensor, min, max, X_1, X_2):
+    def make_decision_boundary_plot(self, Wo : torch.Tensor, Ws : torch.Tensor, Bo : torch.Tensor, Bs : torch.Tensor , min_x, max_x, min_y, max_y, X_1, X_2):
         """! Plots the decision boundary for a two-dimensional dataset.
         """
 
-        W1 = self.change_tensor(W_o)
-        W2 = self.change_tensor(W_s)
+        W1 = self.change_tensor(Wo)
+        W2 = self.change_tensor(Ws)
+        B1 = self.change_tensor(Bo)
+        B2 = self.change_tensor(Bs)
+        X_1 = self.change_tensor(X_1)
+        X_2 = self.change_tensor(X_2)
 
         def sigmoid(x):
             return 1 / (1 + np.exp(-x))
 
         def prediction(X):
-            H = sigmoid(X @ W1)
-            H_bias = np.c_[np.ones(H.shape[0]), H]
-            Y = sigmoid(H_bias @ W2)
+            H = sigmoid((X @ W1) + B1)
+            Y = sigmoid((H @ W2) + B2)
             return Y
 
         xx, yy = np.meshgrid(
-            np.linspace(min, max, 300),
-            np.linspace(min, max, 300)
+            np.linspace(min_x, max_x, 300),
+            np.linspace(min_y, max_y, 300)
         )
 
         grid = np.c_[
-            np.ones(xx.size),
             xx.ravel(),
             yy.ravel()
         ]
@@ -205,7 +207,7 @@ class DatasetGenerator:
     """
 
     @staticmethod
-    def generate_nonlinearly_separable(seed, n=40000):
+    def generate_nonlinearly_separable(seed, n=10000):
         """! Generates a non-linearly separable dataset.
 
         @param seed Random seed for reproducibility.
@@ -223,7 +225,7 @@ class DatasetGenerator:
         return x_tensor, y_tensor
 
     @staticmethod
-    def generate_linearly_separable(seed, n=40000):
+    def generate_linearly_separable(seed, n=10000):
         """! Generates a linearly separable dataset.
 
         @param seed Random seed for reproducibility.
@@ -231,7 +233,7 @@ class DatasetGenerator:
         """
 
         # Generate clustered dataset
-        x, y = make_blobs(n_samples=n, centers=2, random_state=seed, cluster_std=0.3)
+        x, y = make_blobs(n_samples=n, centers=2, random_state=seed, cluster_std=0.35)
 
         # Convert dataset to PyTorch tensors
         x_tensor = torch.tensor(x, dtype=TYPE, device = DEVICE)
@@ -241,20 +243,9 @@ class DatasetGenerator:
         return x_tensor, y_tensor
 
     @staticmethod
-    def generate_data(seed : int, func, ratio : float):
-        """! Generates and splits a dataset.
-
-        @param seed Random seed for reproducibility.
-        @param func Dataset generation function.
-        @param ratio Proportion of test samples.
-        @return Training and testing datasets.
-        """
-
-        # Generate dataset using the provided function
-        points, classification = func(seed)
-
+    def split_data(ratio : float, seed : int, points : torch.Tensor, labels : torch.Tensor):
         # Split dataset into training and testing subsets
-        x_train, x_test, y_train, y_test = train_test_split(points, classification, test_size = ratio)
+        x_train, x_test, y_train, y_test = train_test_split(points, labels, test_size = ratio, random_state=seed, shuffle=True)
 
         # Return training and testing datasets
         return [x_train, y_train], [x_test, y_test]

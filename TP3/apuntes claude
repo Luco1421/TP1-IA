@@ -1,0 +1,82 @@
+- ⚠️ get_accuracy no sirve con K=1. Hace argmax(dim=1); si la salida es [N,1], el argmax siempre da 0 y la precisión siempre da algo constante. En la Parte 3 (K=1) no la usás (la descartás con _), así que no molesta, pero no la uses ahí.
+- ⚠️ Early-stop puede cortar de más: if abs(error[-1]-error[-2]) < 1e-5: break. Al principio del entrenamiento el error a veces cambia muy poco (meseta inicial) y puede frenar antes de tiempo, dando un "error final" malo. Para XOR/optuna esto puede sesgar la búsqueda. No es un crash.
+
+(20 puntos) Construya una red neuronal para su clasificación, con D = 2 neuronas de entrada, K = 1 neuronas en la capa de salida y:
+Pero k != 1
+
+Buena pregunta, y la confusión es totalmente entendible porque el enunciado usa "P" de dos
+  formas. Te doy mi lectura con la evidencia que da el propio PDF.
+
+  Qué interpreto de "P"
+
+  Mirá la Parte 4, que es la que desambigua:
+
+  ▎ 4.1.c: "...calibre los valores de M, α y la cantidad de iteraciones P..."
+  ▎ 4.1.c.1: "Calibre con optuna γ y α con P = 50..."
+
+  Ahí no hay duda: P = cantidad de iteraciones (épocas) de entrenamiento. Primero lo trata como
+  algo a calibrar, y después lo fija en 50 para el paso de optuna. Como el enunciado es el mismo
+  documento, lo más coherente es leer el "P = 50 iteraciones" de la Parte 3 igual: entrenar cada
+  red 50 épocas y graficar iteraciones (eje x: 0→50) vs error.
+
+  Así que la lectura literal es: 50 iteraciones = 50 épocas, no 50 corridas.
+
+  Por qué con 50 épocas "no se notaba nada" (esto es lo importante)
+
+  Acá está el punto: que se vea plano con 50 épocas probablemente no es porque 50 sea poco, sino
+  por dos cosas de tu implementación que ya te marqué:
+
+  1. El early-stop te corta el entrenamiento casi al instante. En train_mlp tenés if
+  abs(error[-1]-error[-2]) < 1e-5: break. Cerca de la inicialización el sigmoide está en ~0.5 y el
+  error cambia muy poquito entre las primeras épocas → cumple < 1e-5 y frena a las 2-3 iteraciones.
+  Por eso todas las configs te dan parecido y "no baja": no estás haciendo 50 épocas, estás
+  haciendo 2-3.
+  2. El gradiente es suma, no promedio. Con α=0.01 que pide la consigna, el autor seguramente
+  asumió un gradiente promediado; con tu gradiente sumado sobre 8000 muestras la dinámica es otra y
+  α=0.01 no se comporta como él espera.
+
+  O sea: antes de reinterpretar P, probá desactivar el early-stop (o subir mucho el umbral) y
+  dividir el gradiente por N (gradiente medio). Con eso, 50 épocas con α=0.01 sí deberían mostrar
+  la diferencia esperada: M grande y γ=0.9 bajan más rápido que M=2 y γ=0. Esa comparación de
+  velocidad de descenso en un presupuesto fijo y corto es justamente lo que el ejercicio quiere que
+  veas.
+
+  Mi recomendación (sintetiza ambas lecturas)
+
+  No tenés que elegir entre "50 épocas" y "50 corridas". Podés hacer las dos cosas a la vez, y
+  queda más sólido:
+
+  - 50 corridas, cada una con una partición 80/20 distinta (sklearn) y un número de épocas
+  suficiente para ver la curva.
+  - Graficás la curva promedio iteraciones-vs-error (promediada sobre las 50 corridas) por cada
+  configuración.
+
+  Eso satisface todo al mismo tiempo:
+  - "iteraciones vs error" ✅ (eje x = épocas)
+  - "P = 50" ✅ (50 repeticiones → curva robusta, sin ruido)
+  - "80/20 con sklearn" ✅
+  - y las curvas salen suaves, así que sí se nota el efecto de M y γ.
+
+  (Para promediar curvas necesitás que todas tengan la misma longitud → otra razón para sacar el
+  early-stop en estos experimentos.)
+
+  Documentá explícitamente esta interpretación en el informe ("interpretamos P como N repeticiones
+  de la partición 80/20, promediando la curva de aprendizaje, porque..."). Con eso quedás cubierto
+  ante cualquier lectura del enunciado.
+
+  Sobre las gráficas (tranquilo)
+
+  Aclaremos qué pide cada cosa, porque hay dos tipos de gráfico distintos:
+
+  1. "Tabla de gráficas iteraciones vs error" = curvas de aprendizaje (líneas error vs época), una
+  por configuración, dispuestas en una grilla/tabla. Esto es obligatorio.
+  2. "Tabla del error final de convergencia" = tabla numérica con el error final de cada config.
+  Obligatorio.
+  3. Tus mapas de calor (los make_decision_boundary_plot, las regiones de decisión con contourf) no
+  los pide explícitamente la Parte 3, pero son oro para mostrar cómo M grande genera fronteras más
+  complejas y por qué γ=0.9 ayuda. No los tires — son evidencia buenísima para la pregunta 3.b.
+  Solo que van como complemento, no reemplazan las curvas iteraciones-vs-error.
+
+  Resumen: los mapas de calor que te quedaban lindos → mantenelos como apoyo. Pero agregá sí o sí
+  las curvas de aprendizaje (líneas) + la tabla de error final, que es lo que el enunciado exige
+  textualmente.

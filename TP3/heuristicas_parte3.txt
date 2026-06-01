@@ -1,0 +1,161 @@
+================================================================================
+PARTE 3 (b) — HEURÍSTICAS: relación entre alpha, M, D y el error
+Borrador de investigación. VERIFICAR las citas antes de entregar.
+================================================================================
+
+Esta nota responde a las tres preguntas del enunciado 3.b:
+  (1) ¿Cómo se ajusta el coeficiente de aprendizaje alpha en función de la
+      cantidad de neuronas en la capa oculta M?
+  (2) ¿Qué relación hay entre la cantidad de neuronas en la capa oculta M y el
+      error en el conjunto de entrenamiento?
+  (3) ¿Se puede ajustar M en función de las neuronas de la capa de entrada D?
+      (citando referencias externas / artículos científicos)
+
+
+--------------------------------------------------------------------------------
+1. RELACIÓN ENTRE alpha (tasa de aprendizaje) Y M (neuronas ocultas)
+--------------------------------------------------------------------------------
+
+Idea central: al aumentar M crece la cantidad de parámetros (los pesos Wo son
+D x M y Ws son M x K) y, por lo tanto, crece la norma del gradiente acumulado
+sobre la capa de salida (cada neurona de salida recibe la suma de M entradas).
+Si se mantiene alpha fijo, una red con M grande da pasos de actualización más
+grandes y tiende a oscilar o diverger. La heurística práctica es:
+
+    A MAYOR M  ->  conviene un alpha MENOR (paso más pequeño y estable).
+    A MENOR M  ->  se tolera un alpha MAYOR sin perder estabilidad.
+
+Intuición de escala: la entrada neta de una neurona es la suma de ~M términos.
+Si los pesos/activaciones tienen varianza similar, la magnitud de esa suma crece
+aproximadamente con sqrt(M). Para que el tamaño efectivo del paso no escale con
+la red, alpha debe reducirse a medida que M crece (orden 1/M o 1/sqrt(M) como
+regla gruesa). Esta es la misma motivación detrás de las inicializaciones tipo
+Xavier/Glorot (escalar por 1/sqrt(fan_in + fan_out)), que ya se usa en el código
+(función xavier_glorot_init).
+
+Observación adicional sobre momentum (gamma): el momentum aumenta el paso
+efectivo en direcciones consistentes (aproximadamente un factor 1/(1-gamma)).
+Por eso, cuando gamma es alto (p. ej. 0.9) conviene un alpha aún más chico que
+cuando gamma = 0, para una misma M.
+
+Qué mostrar en el informe (a partir de las 4 configuraciones de la parte 3):
+  - M=20, gamma!=0 vs M=2, gamma!=0: con M grande el mismo alpha produce curvas
+    de error más ruidosas/oscilantes; con M chico la curva es más suave.
+  - Comparar las curvas iteraciones-vs-error y comentar cuál converge más rápido
+    y cuál es más estable.
+
+
+--------------------------------------------------------------------------------
+2. RELACIÓN ENTRE M Y EL ERROR DE ENTRENAMIENTO (capacidad / sesgo-varianza)
+--------------------------------------------------------------------------------
+
+Una red con una capa oculta y suficientes neuronas es un APROXIMADOR UNIVERSAL
+(Hornik et al., 1989; Cybenko, 1989): puede aproximar cualquier función continua
+en un compacto con error arbitrariamente pequeño. De aquí se deduce la relación:
+
+    A MAYOR M  ->  MENOR error de ENTRENAMIENTO (más capacidad para memorizar
+                   el conjunto de entrenamiento).
+    M demasiado chico ->  SUBAJUSTE (underfitting): el error de entrenamiento se
+                   estanca alto porque la red no tiene capacidad suficiente.
+    M demasiado grande ->  el error de entrenamiento sigue bajando, pero aparece
+                   SOBREAJUSTE (overfitting): el error de VALIDACIÓN deja de
+                   bajar y vuelve a subir, y la brecha train-validación crece.
+
+Esto es el clásico compromiso SESGO-VARIANZA (Geman, Bienenstock & Doursat,
+1992): M controla la complejidad del modelo. El objetivo no es minimizar el
+error de entrenamiento sino el de validación; por eso M se elige buscando el
+punto donde el error de validación es mínimo, no el más grande posible.
+
+Qué mostrar en el informe:
+  - Tabla de error final de convergencia por configuración (M=20 vs M=2).
+  - Señalar que con M=20 el error de entrenamiento es menor que con M=2, pero
+    comparar contra el error de validación (20%) para detectar sobreajuste.
+
+
+--------------------------------------------------------------------------------
+3. ¿SE PUEDE ELEGIR M EN FUNCIÓN DE D? (reglas heurísticas con referencias)
+--------------------------------------------------------------------------------
+
+Sí. No existe una fórmula exacta y óptima (depende del problema y de los datos),
+pero la literatura propone varias REGLAS HEURÍSTICAS para fijar un punto de
+partida de M a partir de D (entradas) y K (salidas):
+
+  a) Regla de la pirámide geométrica (Masters, 1993):
+         M = round( sqrt(D * K) )
+     Idea: el número de neuronas decrece geométricamente de la entrada a la
+     salida formando una "pirámide".
+
+  b) Cota tipo Kolmogorov / Hecht-Nielsen (1987):
+         M <= 2*D + 1
+     Basada en el teorema de superposición de Kolmogorov; da una COTA SUPERIOR
+     razonable para una sola capa oculta.
+
+  c) Reglas prácticas (Heaton, 2008):
+         - M entre el tamaño de la capa de entrada (D) y la de salida (K).
+         - M = (2/3) * D + K
+         - M < 2 * D
+     Son "reglas de dedo" muy citadas en textos aplicados.
+
+  d) Cotas teóricas según el número de muestras (Huang & Babri, 1998):
+     una red de una capa oculta con función de activación acotada puede aprender
+     N patrones distintos con a lo sumo N neuronas ocultas; en la práctica M se
+     mantiene MUY por debajo de N para no sobreajustar.
+
+  e) Revisiones que comparan estas reglas:
+         - Stathakis (2009): "How many hidden layers and nodes?"
+         - Karsoliya (2012): "Approximating number of hidden layer neurons in
+           multiple hidden layer BPNN architecture".
+     Conclusión común: las reglas dan un PUNTO DE PARTIDA; el valor final debe
+     ajustarse empíricamente (p. ej. con validación o con optuna, como en este TP).
+
+Recomendación para este TP (y para la calibración de M en la Parte 4):
+  - Tomar como punto de partida M ≈ sqrt(D * K) (regla a) o M acotado por
+    2*D + 1 (regla b), y luego refinar observando el error de validación.
+  - En la Parte 4, con imágenes aplanadas, D es muy grande (D = d*d*3), por lo
+    que sqrt(D*K) ya da valores de M relativamente grandes; conviene además
+    limitar M por costo computacional y por la poca cantidad de muestras
+    (~564 de entrenamiento) para evitar sobreajuste.
+
+
+--------------------------------------------------------------------------------
+REFERENCIAS (verificar formato y disponibilidad antes de entregar)
+--------------------------------------------------------------------------------
+
+[1] Cybenko, G. (1989). "Approximation by superpositions of a sigmoidal
+    function". Mathematics of Control, Signals and Systems, 2(4), 303-314.
+
+[2] Hornik, K., Stinchcombe, M., & White, H. (1989). "Multilayer feedforward
+    networks are universal approximators". Neural Networks, 2(5), 359-366.
+
+[3] Geman, S., Bienenstock, E., & Doursat, R. (1992). "Neural networks and the
+    bias/variance dilemma". Neural Computation, 4(1), 1-58.
+
+[4] Hecht-Nielsen, R. (1987). "Kolmogorov's mapping neural network existence
+    theorem". Proc. IEEE International Conference on Neural Networks, III, 11-14.
+
+[5] Masters, T. (1993). "Practical Neural Network Recipes in C++".
+    Academic Press. (Regla de la pirámide geométrica.)
+
+[6] Huang, G.-B., & Babri, H. A. (1998). "Upper bounds on the number of hidden
+    neurons in feedforward networks with arbitrary bounded nonlinear activation
+    functions". IEEE Transactions on Neural Networks, 9(1), 224-229.
+
+[7] Stathakis, D. (2009). "How many hidden layers and nodes?".
+    International Journal of Remote Sensing, 30(8), 2133-2147.
+
+[8] Karsoliya, S. (2012). "Approximating number of hidden layer neurons in
+    multiple hidden layer BPNN architecture". International Journal of
+    Engineering Trends and Technology, 3(6), 714-717.
+
+[9] Heaton, J. (2008). "Introduction to Neural Networks for Java" (2nd ed.).
+    Heaton Research. (Reglas prácticas para M.)
+
+[10] Glorot, X., & Bengio, Y. (2010). "Understanding the difficulty of training
+     deep feedforward neural networks". AISTATS. (Inicialización Xavier/Glorot;
+     justifica el escalado por fan_in/fan_out usado en el código.)
+
+================================================================================
+NOTA: este es un borrador para apoyar la redacción. Conviene leer/citar al menos
+[2], [3] y una de las revisiones ([7] u [8]) directamente antes de entregar, y
+acompañar cada afirmación con las curvas/tablas que generes en la Parte 3.
+================================================================================
