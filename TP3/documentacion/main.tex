@@ -1,21 +1,8 @@
-%==============================================================================
-%  Trabajo Práctico 3: Redes Neuronales
-%  Instituto Tecnológico de Costa Rica — Escuela de Computación
-%  Documentación técnica del proyecto (TP3.ipynb / Util.py)
-%
-%  Compilación recomendada:
-%     pdflatex main.tex
-%     pdflatex main.tex     (segunda pasada para resolver referencias cruzadas)
-%
-%  Las figuras se buscan en ./figuras/.  Si un archivo aún no fue exportado
-%  desde el cuaderno, el comando \safefig inserta un recuadro indicándolo, de
-%  modo que el documento compila aunque falten imágenes.
-%==============================================================================
 \documentclass[11pt,a4paper]{article}
 
 \usepackage[utf8]{inputenc}
 \usepackage[T1]{fontenc}
-\usepackage[spanish,es-tabla,es-noshorthands]{babel}% es-noshorthands evita conflictos con listings
+\usepackage[spanish,es-tabla,es-noshorthands]{babel}
 \usepackage{lmodern}
 \usepackage{microtype}
 
@@ -35,115 +22,55 @@
 \usepackage[hidelinks]{hyperref}
 \usepackage{cleveref}
 
-%------------------------------------------------------------------------------
-%  Estilo para los listados de código Python
-%------------------------------------------------------------------------------
 \definecolor{codegray}{rgb}{0.5,0.5,0.5}
 \definecolor{codegreen}{rgb}{0.0,0.5,0.0}
 \definecolor{codepurple}{rgb}{0.58,0.0,0.82}
 \definecolor{backcolour}{rgb}{0.96,0.96,0.96}
 
-\lstdefinestyle{python}{
-    language=Python,
-    backgroundcolor=\color{backcolour},
-    commentstyle=\color{codegreen}\itshape,
-    keywordstyle=\color{blue},
-    stringstyle=\color{codepurple},
-    numberstyle=\tiny\color{codegray},
-    basicstyle=\ttfamily\footnotesize,
-    breakatwhitespace=false,
-    breaklines=true,
-    captionpos=b,
-    keepspaces=true,
-    numbers=left,
-    numbersep=6pt,
-    showspaces=false,
-    showstringspaces=false,
-    showtabs=false,
-    frame=single,
-    rulecolor=\color{codegray!40},
-    tabsize=4
-}
-\lstset{style=python}
-
-%------------------------------------------------------------------------------
-%  Inclusión robusta de figuras: si el archivo no existe, muestra un recuadro
-%------------------------------------------------------------------------------
-\newcommand{\safefig}[4]{% #1 ruta  #2 ancho  #3 caption  #4 label
-  \begin{figure}[htbp]
-    \centering
-    \IfFileExists{#1}{\includegraphics[width=#2]{#1}}{%
-      \fbox{\parbox[c][3.2cm][c]{0.78\linewidth}{\centering\itshape
-        Figura pendiente de exportar desde el cuaderno: \texttt{\detokenize{#1}}}}}
-    \caption{#3}
-    \label{#4}
-  \end{figure}}
-
-%------------------------------------------------------------------------------
-%  Portada
-%------------------------------------------------------------------------------
-\title{%
-  \vspace{-1.5cm}
-  \large Instituto Tecnológico de Costa Rica\\
-  \large Escuela de Computación\\
-  \large Inteligencia Artificial\\[1.2cm]
-  \Huge\bfseries Trabajo Práctico 3:\\ Redes Neuronales\\[0.6cm]
-  \large Implementación de un perceptrón multicapa con descenso del gradiente
-  con \emph{momentum} y comparación con una arquitectura convolucional (AlexNet)}
-
-\author{%
-  Grupo de trabajo\\
-  \texttt{TP3 --- Redes Neuronales}}
-
-\date{\today}
-
-%==============================================================================
 \begin{document}
-\maketitle
-\thispagestyle{empty}
+\begin{titlepage}
+\centering
+{\includegraphics[width=0.7\textwidth]{Imagenes/logoTEC.png}\par}
+\vspace{1cm}
+{\bfseries\Large Trabajo Práctico III \par}
+\vspace{1cm}
+{\scshape\Large Curso:\\
+Inteligencia Artificial \par}
+\vspace{2cm}
+{\scshape\Huge Redes Neuronales \par}
+\vspace{2cm}
+{\Large Profesor: \\
+Saúl Calderón Ramírez\\ \par}
+\vfill
 
-\begin{abstract}
-\noindent
-Este documento describe el diseño, la implementación y la evaluación
-experimental de un perceptrón multicapa (\emph{Multilayer Perceptron}, MLP)
-de tres capas, entrenado mediante el algoritmo de descenso del gradiente con
-\emph{momentum} y retropropagación del error. La implementación emplea una
-representación matricial de los pesos sobre PyTorch~\cite{paszke2019pytorch} y
-se valida progresivamente sobre cuatro problemas de complejidad creciente:
-(i)~pruebas unitarias de las operaciones básicas de la red; (ii)~la
-clasificación de la función lógica XOR, un problema clásicamente no separable
-linealmente; (iii)~la clasificación de conjuntos sintéticos en
-$\mathbb{R}^2$, separables y no separables linealmente, estudiando el efecto
-del número de neuronas ocultas $M$ y del coeficiente de \emph{momentum}
-$\gamma$; y (iv)~la clasificación de imágenes de fondo de ojo del conjunto
-ACRIMA~\cite{diazpinto2019acrima} para la detección de glaucoma, comparando el
-MLP propio contra una arquitectura AlexNet~\cite{krizhevsky2012alexnet}
-afinada por transferencia de aprendizaje. La búsqueda de hiperparámetros se
-realiza con Optuna~\cite{akiba2019optuna} y las particiones de datos con
-\textsc{scikit-learn}~\cite{pedregosa2011scikit}. Los resultados muestran que,
-sobre ACRIMA, la red convolucional alcanza una exactitud media de
-$99.36\%$ frente al $84.29\%$ del MLP, evidenciando la ventaja de las
-representaciones convolucionales para datos de imagen.
-\end{abstract}
+\vfill
+{\Large Estudiantes \par}
+{ \Large Kener Adiel Castillo \\ Alejandro Cerdas Vargas \\ José Pablo Pérez Delgado \par}
+\vfill
+
+{\Large Carnet \par}
+{ \Large 2023179846 \\ 2023073037 \\ 2023051991\par}
+
+\vfill
+{\Large \today \par}
+\end{titlepage}
 
 \tableofcontents
+
 \newpage
 
-%==============================================================================
 \section{Introducción}
-%==============================================================================
 
 Las redes neuronales artificiales constituyen un modelo de cómputo inspirado en
 la organización del sistema nervioso, capaz de aproximar relaciones no lineales
 entre un conjunto de variables de entrada y una variable de salida. El
 perceptrón multicapa con una capa oculta es, bajo condiciones suaves, un
-\emph{aproximador universal}: puede aproximar cualquier función continua sobre
-un compacto con error arbitrariamente pequeño, siempre que disponga de
-suficientes neuronas ocultas~\cite{cybenko1989,hornik1989}.
+aproximador universal, ya que puede aproximar cualquier función continua con error arbitrariamente pequeño, siempre que disponga de
+suficientes neuronas ocultas \cite{cybenko1989,hornik1989}. \\
 
 El presente trabajo implementa, desde sus operaciones fundamentales, un
 perceptrón de tres capas (entrada, oculta y salida) y lo entrena con el
-algoritmo de \textbf{descenso del gradiente con \emph{momentum}}, una variante
+algoritmo de descenso del gradiente con momentum, una variante
 del descenso del gradiente clásico que acelera la convergencia y atenúa las
 oscilaciones en direcciones de curvatura elevada. La totalidad del código se
 encuentra distribuida en dos archivos:
@@ -164,9 +91,7 @@ las \Cref{sec:parte2,sec:parte3} reportan los experimentos sobre XOR y sobre
 datos en $\mathbb{R}^2$; y la \Cref{sec:parte4} aborda la clasificación de
 imágenes de fondo de ojo. La \Cref{sec:conclusiones} resume las conclusiones.
 
-%==============================================================================
-\section{Marco teórico}\label{sec:marco}
-%==============================================================================
+\section{Marco teórico} \label{sec:marco}
 
 \subsection{Arquitectura y notación}
 
@@ -175,274 +100,458 @@ la capa oculta y $K$ neuronas de salida, descrita en el código por el arreglo
 \texttt{neurons\_per\_layer}~$=[D,M,K]$. Sea
 $\mathbf{X}\in\mathbb{R}^{N\times D}$ la matriz que agrupa $N$ observaciones de
 entrada (una por fila) y $\mathbf{T}\in\mathbb{R}^{N\times K}$ las etiquetas
-deseadas. Los parámetros aprendibles son:
+deseadas. Los parámetros actualizables para mejorar los resultados son:
 
 \begin{align}
-  \mathbf{W}_o &\in\mathbb{R}^{D\times M}, &
-  \mathbf{b}_o &\in\mathbb{R}^{1\times M}
+  W_o &\in \mathbb{R}^{D \times M}, &
+  b_o &\in \mathbb{R}^{1 \times M}
     &&\text{(pesos y sesgos de la capa oculta),}\\
-  \mathbf{W}_s &\in\mathbb{R}^{M\times K}, &
-  \mathbf{b}_s &\in\mathbb{R}^{1\times K}
+  W_s &\in \mathbb{R}^{M \times K}, &
+  b_s &\in \mathbb{R}^{1 \times K}
     &&\text{(pesos y sesgos de la capa de salida).}
 \end{align}
 
-Se utiliza la función \textbf{sigmoide} como activación en ambas capas,
+\subsection{La función de activación sigmoide}\label{sec:sigmoide}
+
+Entre cada capa lineal se aplica una función de activación no lineal. Si se encadenaran capas puramente lineales, la composición
+seguiría siendo una única transformación lineal y la red no podría representar
+fronteras de decisión curvas (no podría, por ejemplo, resolver XOR, como se verá
+en la sección \ref{sec:parte2}). En este trabajo se emplea la función
+sigmoide en ambas capas:
 \begin{equation}
   \sigma(z)=\frac{1}{1+e^{-z}},\qquad
-  \sigma'(z)=\sigma(z)\,\bigl(1-\sigma(z)\bigr),
+  \sigma'(z)=\sigma(z)\,\bigl(1-\sigma(z)\bigr).
   \label{eq:sigmoid}
 \end{equation}
-propiedad esta última que se explota directamente en la retropropagación.
+
+La sigmoide tiene tres propiedades que la hacen conveniente aquí. Primero, compacta cualquier número real al intervalo $(0,1)$, de modo que su salida
+puede interpretarse directamente como una probabilidad, lo que resulta natural en
+clasificación binaria, donde la red estima $P(\text{clase}=1\mid \vec{x})$.
+Segundo, es suave y diferenciable en todo punto, requisito para aplicar el
+descenso del gradiente. Tercero, su derivada se expresa en términos de la propia
+salida, $\sigma'(z)=\sigma(z)(1-\sigma(z))$, lo que permite reutilizar en la
+retropropagación los valores ya calculados en la propagación hacia adelante, sin
+operaciones adicionales [\ref{eq:delta_s},\ref{eq:delta_o}].
+
+Conviene señalar, por rigor, su principal limitación: como $\sigma'(z)$ alcanza
+su máximo $0.25$ y decae a cero en los extremos, en redes muy
+profundas el gradiente se atenúa al propagarse por muchas capas saturadas, el llamado desvanecimiento del gradiente, \cite{glorot2010,pascanu2013}.
+Por ello las arquitecturas profundas modernas prefieren activaciones como ReLU ($max(0,x)$).
+En esta red, de una sola capa oculta, ese inconveniente es no es tan grave, y la
+sigmoide se ajusta además a lo solicitado por el enunciado y a su interpretación
+probabilística; de ahí su elección.
 
 \subsection{Inicialización de pesos (Xavier/Glorot)}
 
-Los pesos se inicializan con una distribución uniforme acotada según la regla de
-Xavier/Glorot~\cite{glorot2010}, que escala la amplitud en función del número de
-conexiones entrantes y salientes para mantener estable la varianza de las
-señales a través de las capas:
+Antes de poder entrenar la red se puede asignar un valor inicial a los pesos.
+Esta elección condiciona si el entrenamiento arranca de forma sana
+o si se estanca desde la primera iteración. Conviene entender primero qué
+problema resuelve la inicialización de Xavier/Glorot.
+
+Cuando una entrada atraviesa la red, en cada capa se calcula una suma ponderada
+de las salidas de la capa anterior [\ref{eq:fwd1}, \ref{eq:fwd2}]. Si los pesos
+iniciales son demasiado grandes, la magnitud de esa suma crece capa a
+capa y empuja a la sigmoide hacia sus extremos (cercanos a $0$ o a $1$), donde su
+derivada $\sigma'(z)=\sigma(z)(1-\sigma(z))$ es casi nula (eq.\ref{eq:sigmoid}); en
+consecuencia, durante la retropropagación apenas circula gradiente y la red deja
+de aprender. Si, por el contrario, los pesos son
+demasiado pequeños, la señal se encoge progresivamente hacia cero y ocurre
+el fenómeno simétrico de desvanecimiento. La idea de
+Glorot y Bengio \cite{glorot2010} es elegir la escala inicial de los pesos de
+modo que la varianza de la señal se conserve aproximadamente constante
+al pasar de una capa a la siguiente —tanto hacia adelante (activaciones) como
+hacia atrás (gradientes), evitando ambos extremos.
+
+Considérese una neurona que suma $\text{fan\_in}$ entradas independientes (cantidad de entradas que recibe una neurona), cada
+una con varianza $\operatorname{Var}(x)$, ponderadas por pesos de media nula y
+varianza $\operatorname{Var}(w)$. La varianza de la preactivación resultante es
+aproximadamente
+\begin{equation}
+  \operatorname{Var}(p)\;\approx\;\text{fan\_in}\cdot
+     \operatorname{Var}(w)\cdot \operatorname{Var}(x).
+  \label{eq:var-prop}
+\end{equation}
+Para que la varianza de salida iguale a la de entrada en el paso hacia
+adelante se necesitaría $\operatorname{Var}(w)=1/\text{fan\_in}$; para preservar
+la varianza de los gradientes en el paso hacia atrás se necesitaría, de forma
+análoga, $\operatorname{Var}(w)=1/\text{fan\_out}$. Como ambas condiciones no
+pueden satisfacerse a la vez (a menos que $\text{fan\_in}=\text{fan\_out}$), se
+adopta el promedio armónico de ambas como compromiso:
+\begin{equation}
+  \operatorname{Var}(w)\;=\;\frac{2}{\text{fan\_in}+\text{fan\_out}}.
+  \label{eq:xavier-var}
+\end{equation}
+Finalmente, para una distribución uniforme $\mathcal{U}(-r,r)$ la varianza vale
+$r^2/3$ (resultado de $\frac{(b-a)^2}{12}$). Igualando $r^2/3$ con \cref{eq:xavier-var} y despejando $r$ se obtiene
+exactamente la cota empleada en el código:
 \begin{equation}
   r_{\ell}=\sqrt{\frac{6}{\text{fan\_in}+\text{fan\_out}}},\qquad
   w \sim \mathcal{U}(-r_\ell,\,r_\ell).
   \label{eq:xavier}
 \end{equation}
 En el código, la función \texttt{xavier\_glorot\_init} calcula
-\cref{eq:xavier}, usándose $r_o=\sqrt{6/(D+M)}$ para $\mathbf{W}_o$ y
-$r_s=\sqrt{6/(M+K)}$ para $\mathbf{W}_s$. Los sesgos se inicializan en cero.
+\cref{eq:xavier}, usándose $r_o=\sqrt{6/(D+M)}$ para $W_o$ y
+$r_s=\sqrt{6/(M+K)}$ para $W_s$. \\
 
-\subsection{Propagación hacia adelante}
+Los sesgos no participan del problema de propagación de varianza descrito arriba:
+hay un único sesgo por neurona, de modo que no se acumula a lo largo de muchas
+conexiones como sí ocurre con los pesos en \cref{eq:var-prop}. Tampoco hace falta
+que sean aleatorios para romper la simetría entre neuronas, esa función ya
+la cumplen los pesos inicializados al azar, lo que impide que todas las neuronas
+ocultas aprendan exactamente lo mismo. Al fijarlos en cero, la preactivación
+inicial queda centrada en torno al origen, que es justamente donde la sigmoide
+tiene su mayor pendiente ($\sigma'(0)=0.25$); así el gradiente fluye con fuerza
+desde la primera iteración. Por estas razones, inicializar los sesgos en cero es
+la práctica estándar y la que se adopta aquí.
+
+\subsection{Propagación hacia adelante} \label{sec:forward}
 
 La salida de la red se calcula propagando la entrada a través de las dos capas
 (\texttt{forward}):
 \begin{align}
-  \mathbf{P}_o &= \mathbf{X}\,\mathbf{W}_o + \mathbf{b}_o,
-    & \mathbf{Y}_o &= \sigma(\mathbf{P}_o)
-    && \in\mathbb{R}^{N\times M},\label{eq:fwd1}\\
-  \mathbf{P}_s &= \mathbf{Y}_o\,\mathbf{W}_s + \mathbf{b}_s,
-    & \mathbf{Y}_s &= \sigma(\mathbf{P}_s)
-    && \in\mathbb{R}^{N\times K},\label{eq:fwd2}
+  P_o &= X W_o + b_o,
+    & Y_o &= \sigma(P_o)
+    && \in R^{N \times M},\label{eq:fwd1}\\
+  P_s &= Y_o W_s + b_s,
+    & Y_s &= \sigma(P_s)
+    && \in R^{N \times K}, \label{eq:fwd2}
 \end{align}
-donde $\mathbf{P}$ denota los \emph{pesos netos} (preactivaciones) e
-$\mathbf{Y}$ las salidas de cada capa. El sesgo se suma por \emph{broadcasting}
-sobre las $N$ filas.
+donde $P$ denota los pesos netos e $Y$ las salidas de cada capa luego de pasar por la activación, en este caso sigmoide. El sesgo se suma sobre las $N$ filas.
 
-\subsection{Función de error}
+\subsection{Función de error} \label{sec:error}
 
-Se emplea el error cuadrático medio (\emph{Mean Squared Error}, MSE) sobre todas
-las muestras y salidas (\texttt{get\_error}):
+El entrenamiento necesita una medida escalar de cuán lejos está la salida de la
+red, $Y_s$, de la etiqueta deseada $T$; esa medida es la
+función de error (o pérdida) que el descenso del gradiente minimiza. Se
+emplea el error cuadrático medio (Mean Squared Error (MSE)), calculado en
+\texttt{get\_error} mediante \texttt{mse\_loss} de PyTorch:
 \begin{equation}
-  E(\mathbf{Y}_s,\mathbf{T})
+  E(Y_s,T)
    = \frac{1}{N K}\sum_{n=1}^{N}\sum_{j=1}^{K}
      \bigl(y_{s,nj}-t_{nj}\bigr)^2 .
   \label{eq:mse}
 \end{equation}
+Cada término $(y_{s,nj}-t_{nj})^2$ mide la discrepancia entre la salida y el valor
+deseado para la muestra $n$ y la neurona de salida $j$. Elevar al cuadrado tiene
+dos efectos: hace que el error sea siempre positivo y simétrico, y \emph{penaliza
+más las desviaciones grandes} que las pequeñas, lo que orienta el aprendizaje a
+corregir primero los errores más groseros; además, $(\cdot)^2$ es suave y
+diferenciable, condición necesaria para el descenso del gradiente. \\
+
+El doble promedio no es cosmético. Dividir entre el número de muestras $N$
+convierte la suma en un error medio por muestra, de modo que su valor y,
+sobre todo, la magnitud del gradiente que de él se deriva, no depende del
+tamaño del conjunto ni del lote; sin esa división, procesar más datos
+aumentaría artificialmente la pérdida y el paso de actualización, y obligaría a
+re-calibrar $\alpha$ cada vez que cambia $N$. Dividir además entre el número de
+salidas $K$ lo vuelve un error medio por neurona de salida, lo que hace la
+métrica comparable entre la red de $K{=}2$ de XOR (sección \ref{sec:parte2}) y las de
+$K{=}1$ de las Partes 3 y 4.
 
 \subsection{Retropropagación de los deltas}\label{sec:backprop}
 
-La retropropagación calcula la sensibilidad del error respecto de las
-preactivaciones de cada capa (los \emph{deltas} $\bm{\delta}$). Para la capa de
-salida, combinando la derivada del MSE con la de la sigmoide
-(\cref{eq:sigmoid}):
+Para minimizar el error hay que saber cómo cambia $E$ (función de pérdida) al modificar cada peso, es
+decir, su gradiente. Calcularlo capa por capa de forma directa sería costoso y
+redundante; la retropropagación \cite{rumelhart1986} lo resuelve
+aplicando la regla de la cadena de atrás hacia adelante y reutilizando
+resultados intermedios. La cantidad central es el delta de cada capa,
+$\delta=\frac{\partial E}{\partial P}$, la sensibilidad del error respecto de
+la preactivación $P$, mide cuánto contribuye al error cada neurona
+antes de la activación, y a partir de él se obtienen los gradientes de
+pesos y sesgos.
+
+Para la capa de salida se compone la derivada del error con la de la activación.
+Derivando el MSE (\cref{eq:mse}) respecto de $Y_s$ se obtiene un término
+proporcional a $(Y_s-T)$, y por la regla de la cadena se
+multiplica por la derivada de la sigmoide $\sigma'(P_s)=
+Y_s\odot(1-Y_s)$ (\cref{eq:sigmoid}):
 \begin{equation}
-  \bm{\delta}_s = (\mathbf{Y}_s-\mathbf{T})\odot
-                  \mathbf{Y}_s\odot(\mathbf{1}-\mathbf{Y}_s)
-                  \;\in\mathbb{R}^{N\times K},
+  \delta_s = (Y_s-T) \odot
+                  Y_s \odot (1 - Y_s) \in R^{N \times K}.
   \label{eq:delta_s}
 \end{equation}
-y para la capa oculta se retropropaga a través de $\mathbf{W}_s$:
+Para la capa oculta, su preactivación influye en el error a través de la
+capa de salida; por eso el delta de salida se retropropaga hacia atrás
+multiplicándolo por $W_s^T$ (la misma matriz de la propagación hacia
+adelante, transpuesta para invertir el sentido del flujo) y, de nuevo por la regla
+de la cadena, por la derivada local de la sigmoide de esta capa:
 \begin{equation}
-  \bm{\delta}_o = \bigl(\bm{\delta}_s\,\mathbf{W}_s^{\top}\bigr)\odot
-                  \mathbf{Y}_o\odot(\mathbf{1}-\mathbf{Y}_o)
-                  \;\in\mathbb{R}^{N\times M},
+  \delta_o = \bigl(\delta_s W_s^T\bigr)\odot
+                  Y_o \odot (1-Y_o) \in R^{N \times M},
   \label{eq:delta_o}
 \end{equation}
-donde $\odot$ denota el producto de Hadamard. Estas ecuaciones corresponden
-exactamente al método \texttt{backpropagate\_deltas}.
+donde $\odot$ denota el producto elemento a elemento.
+El nombre ``retropropagación'' refleja precisamente esta dirección, el error
+medido en la salida se propaga hacia las capas anteriores. Estas dos ecuaciones
+corresponden exactamente al método \texttt{backpropagate\_deltas}.
 
-\subsection{Actualización con \emph{momentum}}\label{sec:momentum}
+\subsection{Actualización con momentum}\label{sec:momentum}
 
-El enunciado solicita basar el entrenamiento en el \textbf{descenso del
-gradiente con \emph{momentum}}. La modificación respecto del descenso del
-gradiente clásico consiste en introducir un término de \emph{velocidad}
-$\mathbf{V}$ que acumula una media móvil exponencial de los gradientes; así, las
-componentes consistentes del gradiente se refuerzan y las oscilatorias se
-cancelan~\cite{rumelhart1986}. En la formulación implementada
-(\texttt{update\_weights}) la velocidad combina convexamente la inercia y el
-gradiente promediado sobre las $N$ muestras:
+El descenso del gradiente clásico actualiza cada peso dando un paso en la dirección opuesta al gradiente, $W \leftarrow W-\alpha\nabla E$.
+Esto tiene un inconveniente, en ``valles'' alargados de la superficie de error (direcciones de mucha curvatura) el gradiente apunta de un lado a otro y el
+método oscila, avanzando lento hacia el mínimo. El momentum, que
+es lo que solicita este proyecto, mitiga este problema con una analogía física, en lugar de mover el peso directamente con el gradiente, se acumula una velocidad $V$, como la de una bola que rueda por la superficie y gana inercia \cite{polyak1964,qian1999}. La velocidad es una media móvil exponencial de los gradientes, las componentes consistentes (que apuntan
+época tras época en la misma dirección) se refuerzan y aceleran la marcha,
+mientras que las componentes oscilatorias se cancelan entre sí. El
+coeficiente $\gamma\in[0,1]$ regula cuánta inercia se conserva
+(\texttt{gamma}). En la formulación implementada (\texttt{update\_weights}) la
+velocidad combina la inercia y el gradiente promediado sobre las $N$
+muestras:
 \begin{align}
-  \mathbf{V}_{W_o} &\leftarrow \gamma\,\mathbf{V}_{W_o}
-     + \alpha\,(1-\gamma)\,\frac{1}{N}\,\mathbf{X}^{\top}\bm{\delta}_o, &
-  \mathbf{W}_o &\leftarrow \operatorname{clip}\!\bigl(\mathbf{W}_o-\mathbf{V}_{W_o}\bigr),
+  V_{W_o} &\leftarrow \gamma\,V_{W_o}
+     + \alpha\,(1-\gamma)\,\frac{1}{N}\,X^T,\delta_o, &
+  W_o &\leftarrow \operatorname{clamp}\!\bigl(W_o-V_{W_o}\bigr),
   \label{eq:upd_wo}\\
-  \mathbf{V}_{W_s} &\leftarrow \gamma\,\mathbf{V}_{W_s}
-     + \alpha\,(1-\gamma)\,\frac{1}{N}\,\mathbf{Y}_o^{\top}\bm{\delta}_s, &
-  \mathbf{W}_s &\leftarrow \operatorname{clip}\!\bigl(\mathbf{W}_s-\mathbf{V}_{W_s}\bigr),
+  V_{W_s} &\leftarrow \gamma\,V_{W_s}
+     + \alpha\,(1-\gamma)\,\frac{1}{N}\,Y_o^T,\delta_s, &
+  W_s &\leftarrow \operatorname{clamp}\!\bigl(W_s-V_{W_s}\bigr),
   \label{eq:upd_ws}
 \end{align}
 y de forma análoga para los sesgos, cuyo gradiente es la suma de los deltas
-sobre el \emph{batch}:
+sobre el batch:
 \begin{equation}
-  \mathbf{V}_{b}\leftarrow \gamma\,\mathbf{V}_{b}
-   + \alpha\,(1-\gamma)\,\frac{1}{N}\sum_{n=1}^{N}\bm{\delta}_{n},\qquad
-  \mathbf{b}\leftarrow \operatorname{clip}(\mathbf{b}-\mathbf{V}_{b}).
+  V_{b}\leftarrow \gamma\,V_{b}
+   + \alpha\,(1-\gamma)\,\frac{1}{N}\sum_{n=1}^{N}\delta_{n},\qquad
+  b\leftarrow \operatorname{clamp}(b-V_{b}).
   \label{eq:upd_bias}
-\end{equation}
-El operador $\operatorname{clip}(\cdot)=\operatorname{clamp}(\cdot,
--w_{\max}, w_{\max})$ recorta cada peso al rango
-$[-w_{\max},w_{\max}]$, donde $w_{\max}$ es el parámetro \texttt{max\_weights};
-esto actúa como una salvaguarda numérica que evita la divergencia de los pesos.
+\end{equation} \\
 
-Conviene destacar dos diferencias respecto del \emph{backpropagation} clásico:
-\begin{enumerate}[nosep,label=(\roman*)]
-  \item el factor $(1-\gamma)$ mantiene acotado el tamaño efectivo del paso: el
+El operador $\operatorname{clamp}$ fuerza a cada peso a permanecer en el rango
+$[-w_{\max},w_{\max}]$, donde $w_{\max}$ es el parámetro \texttt{max\_weights}.
+Actúa como un acotador, si por una tasa de aprendizaje
+demasiado alta, un momentum elevado o un gradiente puntualmente grande la
+actualización empujara los pesos a crecer sin control, estos podrían
+``explotar'' hacia magnitudes enormes (fenómeno del gradiente
+explosivo \cite{pascanu2013}), saturando las sigmoides y produciendo valores no
+representables (\texttt{inf}/\texttt{NaN}) que arruinarían el entrenamiento. El
+recorte garantiza que, aun en el peor caso, los pesos queden acotados y el
+proceso no diverja. \\
+
+Conviene destacar dos modificaciones:
+\begin{enumerate}
+  \item El factor $(1-\gamma)$ mantiene acotado el tamaño efectivo del paso, el
         paso asintótico de una dirección constante es
         $\frac{\alpha(1-\gamma)}{1-\gamma}=\alpha$, por lo que $\alpha$ conserva
-        su interpretación de tasa de aprendizaje aun variando $\gamma$;
-  \item el gradiente se \emph{promedia} (no se suma) sobre las $N$ muestras
-        ($\tfrac{1}{N}$), de modo que la dinámica es independiente del tamaño
-        del lote.
+        su interpretación de tasa de aprendizaje aun variando $\gamma$
+  \item El gradiente se promedia (no se suma) sobre las $N$ muestras
+        mediante el factor $\frac{1}{N}$. Esta elección es deliberada y
+        consistente con la normalización del MSE (\Cref{sec:error}), sin ella, la
+        magnitud del gradiente, y por tanto el paso real, escalaría con el número
+        de muestras, de modo que el mismo $\alpha$ se comportaría de forma muy
+        distinta con $4$ observaciones (XOR) que con miles (datos en
+        $\mathbb{R}^2$ o lotes de imágenes). Al promediar, la dinámica se vuelve independiente del tamaño del lote y $\alpha$ es transferible entre
+        experimentos; en particular, valores moderados como el $\alpha=0.01$.
 \end{enumerate}
-Cuando $\gamma=0$ las ecuaciones \cref{eq:upd_wo,eq:upd_ws,eq:upd_bias} se
+
+Cuando $\gamma=0$ las ecuaciones de eq.\ref{eq:upd_wo} a eq.\ref{eq:upd_bias} se
 reducen al descenso del gradiente estándar
-$\mathbf{W}\leftarrow\mathbf{W}-\alpha\,\nabla_{\!\mathbf{W}}E$.
+$W \leftarrow W-\alpha\,\nabla_{\!W}E$.
 
-%==============================================================================
 \section{Parte 1: Implementación del perceptrón de tres capas}\label{sec:parte1}
-%==============================================================================
 
-\subsection{La clase \texttt{MultilayerPerceptron}}
+\subsection{Pruebas unitarias}\label{sec:pruebas1}
 
-La clase recibe en su constructor el arreglo \texttt{neurons\_per\_layer}
-$=[D,M,K]$, la tasa de aprendizaje $\alpha$ (\texttt{alpha}), el coeficiente de
-\emph{momentum} $\gamma$ (\texttt{gamma}) y la cota $w_{\max}$
-(\texttt{max\_weights}). Construye los tensores de pesos según
-\cref{eq:xavier}, inicializa los sesgos y las velocidades en cero, y fija la
-sigmoide como activación. El \cref{lst:init} reproduce el constructor.
+La verificación del funcionamiento correcto de la red se realiza de forma ordenada, para ir cumpliendo dependencias entre funciones. 
 
-\begin{lstlisting}[caption={Constructor de \texttt{MultilayerPerceptron}: inicialización matricial de pesos (Xavier/Glorot), sesgos y acumuladores de velocidad.},label=lst:init]
-def __init__(self, neurons_per_layer, alpha, gamma, max_weights):
-    self.d, self.m, self.k = neurons_per_layer
-    self.alpha, self.gamma, self.max_weights = alpha, gamma, max_weights
+\subsubsection{Función \texttt{forward()}} 
+\paragraph{Objetivo:} Verificar que el método forward() ejecuta correctamente la propagación hacia adelante para distintas dimensiones entre las capas de entrada, oculta y salida, produciendo activaciones y tamaños de tensor acordes con la arquitectura de la red.
 
-    self.xavier_glorot_o = xavier_glorot_init(self.d, self.m)
-    self.xavier_glorot_s = xavier_glorot_init(self.m, self.k)
-    self.Wo = torch.empty(self.d, self.m).uniform_(-self.xavier_glorot_o, self.xavier_glorot_o)
-    self.Ws = torch.empty(self.m, self.k).uniform_(-self.xavier_glorot_s, self.xavier_glorot_s)
-    self.Bo = torch.zeros(1, self.m); self.Bs = torch.zeros(1, self.k)
-    self.activation = nn.Sigmoid()
-    # acumuladores de momentum (velocidad)
-    self.V_Wo = torch.zeros(self.d, self.m); self.V_Ws = torch.zeros(self.m, self.k)
-    self.V_Bo = torch.zeros(self.m);         self.V_Bs = torch.zeros(self.k)
-\end{lstlisting}
+\paragraph{Entrada:} Para esta prueba unitaria se eligío una red neuronal de $3$, $4$, $1$ neuronas en la capa de entrada, en la capa oculta y en la capa de salida, respectivamente. El conjunto de datos definido es
+\begin{align}
+  X &= 
+  \begin{bmatrix} 
+      1.0, 2.0, 3.0 \\
+      5.0, 6.0, 7.0 \\
+      8.0, 9.0, 10.0
+  \end{bmatrix} \\
+  T &= 
+  \begin{bmatrix}
+    0 \\
+    1 \\
+    0
+  \end{bmatrix}  
+\end{align}
+A su vez como la función forward depende de $W_o \,, W_s \,, b_o \,, b_s$, por lo tanto para esta prueba también se define
+\begin{align}
+  W_o &= 
+  \begin{bmatrix}
+    0.1, 0.2, 0.3, 0.4 \\
+    0.5, 0.6, 0.7, 0.8 \\
+    0.9, 1.0, 1.1, 1.2
+  \end{bmatrix} \\
+  W_s &=
+  \begin{bmatrix}
+    2.0 \\
+    2.1 \\
+    2.2 \\
+    2.3    
+  \end{bmatrix} \\
+  b_o &= 
+  \begin{bmatrix}
+    3.0, 3.1, 3.2, 3.3
+  \end{bmatrix} \\
+  b_s &= 
+  \begin{bmatrix}
+    0.5
+  \end{bmatrix}
+\end{align} 
 
-El método \texttt{forward} implementa \cref{eq:fwd1,eq:fwd2};
-\texttt{backpropagate\_deltas} implementa \cref{eq:delta_s,eq:delta_o}; y
-\texttt{update\_weights} implementa \cref{eq:upd_wo,eq:upd_ws,eq:upd_bias}. El
-método \texttt{train\_mlp} encadena estas operaciones durante
-\texttt{num\_epochs} épocas, registrando el historial de error y de exactitud, y
-detiene anticipadamente el entrenamiento cuando dos errores consecutivos
-difieren en menos de $\varepsilon=10^{-5}$ (parada por estancamiento).
+\paragraph{Salidas esperadas:}
 
-\begin{lstlisting}[caption={Bucle de entrenamiento \texttt{train\_mlp}: una pasada por época con evaluación, retropropagación y actualización.},label=lst:train]
-def train_mlp(self, num_epochs, X, T, alpha=None, gamma=None):
-    history_error, history_accuracy, eps = [], [], 1e-5
-    for _ in range(num_epochs):
-        self.forward(X)
-        history_error.append(self.get_error(T))
-        history_accuracy.append(self.get_accuracy(T))
-        self.backpropagate_deltas(T)
-        self.update_weights(X)
-        if len(history_error) > 1 and abs(history_error[-1]-history_error[-2]) < eps:
-            break
-    ...
-    return [t.item() for t in history_error], history_accuracy
-\end{lstlisting}
+Como se muestra en la sección \ref{sec:forward}, se debe realizar las operaciones intermedias que lleven a la salida esperada
+\begin{align}
+  P_o &= X W_o + B_o \\
+  P_o &=
+  \begin{bmatrix}
+    6.8,  7.5,  8.2,  8.9 \\
+    12.8, 14.7, 16.6, 18.5 \\
+    17.3, 20.1, 22.9, 25.7
+  \end{bmatrix} 
+\end{align}
+\begin{align}  
+  Y_o &= \sigma(P_o) \\
+  Y_o &=
+  \begin{bmatrix}
+    0.9989, 0.9994, 0.9997, 0.9999 \\
+    1, 1, 1, 1 \\
+    1, 1, 1, 1
+  \end{bmatrix} \label{eq:test_Y_o}  
+\end{align}
+\begin{align}
+  P_s &= Y_o W_s + b_s \\
+  P_s &= 
+  \begin{bmatrix}
+    9.0957 \\
+    9.1 \\
+    9.1
+  \end{bmatrix}
+\end{align}
+\begin{align}
+  Y_s &= \sigma(P_s) \\
+  Y_s &= 
+  \begin{bmatrix}
+    0.9999 \\
+    0.9999 \\
+    0.9999
+  \end{bmatrix} \label{eq:esperado_1}
+\end{align}  
+Por lo tanto el resultado esperado es lo que se ve en \cref{eq:esperado_1}, que representa la predicción.
+
+\paragraph{Resultados:} La prueba se supera si la diferencia absoluta entre los elementos correspondientes de la salida esperadada y el resultado, sea menor a $10^{-3}$. El resultado obtenido es
+\begin{equation}
+  R = 
+  \begin{bmatrix}
+    0.9999 \\
+    0.9999 \\
+    0.9999
+  \end{bmatrix}
+\end{equation}
+Por lo tanto la prueba se considera exitosa.
+
+\subsubsection{Función \texttt{backpropagate\_deltas()}}
+
+\paragraph{Objetivo:} Verificar que el método \texttt{backpropagate\_deltas()} implementa correctamente el algoritmo de retropropagación, calculando los gradientes de las capas de salida y oculta a partir de los valores obtenidos del \texttt{forward()}, manteniendo la consistencia dimensional para los diferentes números de neuronas entre las capas de la red neuronal.
+
+\paragraph{Entrada:} Para esta prueba unitaria se eligío una red neuronal de $3$, $4$, $1$ neuronas en la capa de entrada, en la capa oculta y en la capa de salida, respectivamente. El conjunto de datos definido es
+\begin{align}
+  X &= 
+  \begin{bmatrix} 
+      1.0, 2.0, 3.0 \\
+      5.0, 6.0, 7.0 \\
+      8.0, 9.0, 10.0
+  \end{bmatrix} \\
+  T &= 
+  \begin{bmatrix}
+    0 \\
+    1 \\
+    0
+  \end{bmatrix}  
+\end{align}
+
+Como se muestra en \cref{eq:delta_s}  y \cref{eq:delta_o}, es necesario definir $Y_s \,, W_s \,, Y_o$, por lo se reutilizarn los cálculos hechos en \cref{eq:test_Y_o} y \cref{eq:esperado_1}, entonces
+\begin{align}
+  W_s &=
+  \begin{bmatrix}
+    2.0 \\
+    2.1 \\
+    2.2 \\
+    2.3    
+  \end{bmatrix} \\
+  Y_o &=
+  \begin{bmatrix}
+    0.9989, 0.9994, 0.9997, 0.9999 \\
+    1, 1, 1, 1 \\
+    1, 1, 1, 1
+  \end{bmatrix} \\
+  Y_s &= 
+  \begin{bmatrix}
+    0.9999 \\
+    0.9999 \\
+    0.9999
+  \end{bmatrix}
+\end{align}
+
+\paragraph{Salidas esperadas:} Para obtener la salida esperada $\delta_s$ se debe seguir \cref{eq:delta_s}
+\begin{align}
+  \delta_s &= (Y_s - T) \odot Y_s \odot (1 - Y_s) \\
+  \delta_s &= 
+  \begin{align}
+        
+  \end{align} 
+\end{align}
 
 \subsection{Variantes por lotes}
 
 Para los experimentos con imágenes (\Cref{sec:parte4}), donde el conjunto no
-cabe en una sola pasada, se añadieron los métodos \texttt{train\_batches} y
+cabe en una sola pasada o es muy costoso realizarlo de esta forma, se añadieron los métodos \texttt{train\_batches} y
 \texttt{evaluate\_batches}, que iteran sobre un \texttt{DataLoader} de PyTorch
 acumulando el error medio por época. La función \texttt{get\_accuracy} distingue
 el caso binario ($K=1$, umbralizando en $0.5$) del caso multiclase ($K>1$,
 mediante $\arg\max$).
 
-\subsection{Pruebas unitarias}\label{sec:pruebas1}
-
-La verificación del funcionamiento correcto de la red se realiza de forma
-incremental. La prueba más directa de la propagación hacia adelante consiste en
-fijar manualmente pesos y sesgos conocidos y comprobar que la salida coincide
-con el cálculo analítico de \cref{eq:fwd1,eq:fwd2}. A continuación, la
-\textbf{convergencia sobre XOR} (\Cref{sec:parte2}) actúa como prueba integral
-de las tres operaciones combinadas: \emph{forward}, \emph{backpropagate} y
-\emph{update}. En efecto, dado que XOR no es separable linealmente, alcanzar un
-error nulo sobre las cuatro observaciones sólo es posible si la retropropagación
-y la actualización con \emph{momentum} están correctamente implementadas; por
-ello se adopta la convergencia a error $<\varepsilon$ como criterio de prueba de
-las funciones \texttt{forward}, \texttt{backpropagate\_deltas} y
-\texttt{update\_weights}.
-
-\begin{table}[H]
-\centering
-\caption{Pruebas unitarias diseñadas para validar la implementación.}
-\label{tab:pruebas}
-\begin{tabular}{@{}p{3.4cm}p{6.0cm}p{4.2cm}@{}}
-\toprule
-\textbf{Componente} & \textbf{Procedimiento} & \textbf{Criterio de aceptación}\\
-\midrule
-\texttt{forward} &
-  Pesos/sesgos fijos conocidos sobre una entrada pequeña; comparar con
-  \cref{eq:fwd1,eq:fwd2} evaluadas a mano &
-  Diferencia $<10^{-6}$ \\
-\addlinespace
-\texttt{backpropagate\_deltas} y \texttt{update\_weights} &
-  Entrenar la red sobre XOR (\Cref{sec:parte2}) &
-  Error MSE $<\varepsilon=10^{-5}$ y exactitud $=100\%$ \\
-\addlinespace
-Normalización $\ell_\infty$ &
-  \texttt{test\_normalizer\_rango\_0\_1} y \texttt{test\_normalizer\_max\_es\_1}
-  (\Cref{sec:parte4-norm}) &
-  Salida en $[0,1]$ y máximo igual a $1$ \\
-\bottomrule
-\end{tabular}
-\end{table}
-
-%==============================================================================
 \section{Parte 2: Clasificación de la función XOR}\label{sec:parte2}
-%==============================================================================
 
 \subsection{Planteamiento del problema}
 
 La función lógica XOR sobre entradas booleanas
-$\vec{x}\in\{0,1\}^2$ es el ejemplo canónico de un problema \emph{no separable
-linealmente}: no existe un hiperplano que separe las clases, por lo que un
+$\vec{x}\in\{0,1\}^2$ es el ejemplo canónico de un problema no separable
+linealmente, es decir, no existe un hiperplano que separe las clases, por lo que un
 perceptrón simple no puede resolverlo. La incorporación de una capa oculta
 permite construir fronteras de decisión no lineales y resolver la tarea.
 
 \subsection{Arquitectura propuesta}
 
-Se emplea una red $D{=}2 \to M{=}2 \to K{=}2$, con codificación
-\emph{one-hot} de las dos clases en la salida:
-$\mathbf{T}=\{[1,0],[0,1],[0,1],[1,0]\}$ para las entradas
-$\{[0,0],[0,1],[1,0],[1,1]\}$ respectivamente (clase~0 $=$ XOR falso, clase~1
-$=$ XOR verdadero). La \Cref{fig:xor-arq} ilustra la topología.
+Se emplea una red
+$$D{=}2, M{=}2, K{=}2$$
+con codificación one-hot de las dos clases en la salida:
+$$T={[1,0],[0,1],[0,1],[1,0]}$$
+para las entradas
+$$X={[0,0],[0,1],[1,0],[1,1]}$$
+respectivamente (clase 0 $=$ XOR falso y clase 1
+$=$ XOR verdadero). La figura \ref{fig:xor-img} ilustra la topología.
 
-\safefig{figuras/xor_arquitectura.png}{0.55\linewidth}{%
-  Arquitectura de la red para XOR: dos entradas, dos neuronas ocultas con
-  activación sigmoide y dos salidas \emph{one-hot}.}{fig:xor-arq}
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.8\linewidth]{Imagenes/xor/xor-arg.png}
+  \caption{Arquitectura utilizada para resolver el problema de XOR con una red neuronal o perceptrón multicapa, con 2 neuronas de capa de entrada, 2 neuronas de capa oculta y 2 neuronas de capa de salida}
+  \label{fig:xor-img}
+\end{figure}
 
 \subsection{Búsqueda de hiperparámetros}
 
 Los hiperparámetros $\alpha$ y $\gamma$ se calibran con
-Optuna~\cite{akiba2019optuna} (función \texttt{objective\_xor}), minimizando el
-error final tras $3000$ épocas sobre las cuatro observaciones. El espacio de
-búsqueda es $\alpha\in[10^{-2},10^{2}]$ (escala logarítmica) y
-$\gamma\in[0,1]$, con $w_{\max}=1000$ y $50$ ensayos. Para cada ensayo que
+Optuna \cite{akiba2019optuna} (función \texttt{objective\_xor}), minimizando el
+error final tras un máximo de $20000$ épocas sobre las cuatro observaciones,
+con paro temprano en cuanto el error cae por debajo de $\varepsilon$ (los
+ensayos exitosos terminan, en la práctica, mucho antes del límite). El espacio
+de búsqueda es $\alpha\in[1,200]$ (escala logarítmica) y
+$\gamma\in[0,0.95]$, con $w_{\max}=1000$ y $50$ ensayos; la justificación de
+estos rangos se desarrolla en la \Cref{sec:convergencia}. Para cada ensayo que
 alcanza error $<\varepsilon=10^{-5}$ se registran el número de iteraciones hasta
 exactitud $>0.99$ y hasta error $<\varepsilon$, y se grafican la frontera de
 decisión y la curva de error (\Cref{fig:xor-result}). La
 \Cref{tab:xor-best} resume las configuraciones que lograron error nulo sobre las
-cuatro observaciones; sus valores se generan en tiempo de ejecución mediante
-\texttt{show\_best\_trial}, que exporta la tabla \texttt{Optimizacion.tex}.
+cuatro observaciones.
 
 \begin{table}[H]
 \centering
@@ -459,7 +568,7 @@ Intento & $\alpha$ & $\gamma$ & Valor (error) & Iter. precisión & Iter. error\\
 \end{tabular}
 \end{table}
 
-\begin{figure}[htbp]
+\begin{figure}[H]
   \centering
   \begin{subfigure}{0.48\linewidth}
     \centering
@@ -478,20 +587,100 @@ Intento & $\alpha$ & $\gamma$ & Valor (error) & Iter. precisión & Iter. error\\
     \caption{Curva de error vs. iteraciones.}
   \end{subfigure}
   \caption{Resultado del entrenamiento sobre XOR para la mejor configuración
-    hallada. A la izquierda, la frontera no lineal separa correctamente las dos
+    hallada (\textbf{VALORES DE LA MEJOR CORRIDA}). A la izquierda, la frontera no lineal separa correctamente las dos
     clases; a la derecha, el error MSE decae hasta valores inferiores a
     $\varepsilon$.}
   \label{fig:xor-result}
 \end{figure}
 
-\subsection{Convergencia}
+\subsection{Convergencia}\label{sec:convergencia}
 
-El criterio \texttt{trial.user\_attr["error"]} registra la primera iteración en
+\paragraph{Criterio de paro: error objetivo, no estancamiento.}
+Con salida sigmoide el error nunca llega exactamente a cero: $\sigma(z)\in(0,1)$
+es asintótica, de modo que siempre existe un residuo $|y-t|>0$. La exactitud del
+$100\%$, en cambio, se alcanza muy temprano (basta que cada salida quede del
+lado correcto de $0.5$). Por ello el entrenamiento se detiene cuando el error
+cae por debajo del objetivo $\varepsilon$ (paro temprano por objetivo,
+parámetro \texttt{epsilon} de \texttt{train\_mlp}), lo que además abarata la
+búsqueda: los ensayos exitosos no consumen el presupuesto completo de épocas.
+Conviene advertir que el criterio alternativo de parar por
+\emph{estancamiento} (cambio de error entre épocas menor que un umbral) es
+inadecuado en este problema: la superficie de error de XOR presenta un
+\emph{plateau} inicial con $E\approx 0.25$ (todas las salidas $\approx 0.5$) en
+el que el error varía de forma minúscula por época sin que la red haya
+aprendido nada; un paro por estancamiento aborta ahí el entrenamiento y sesga
+la calibración hacia valores de $\alpha$ artificialmente enormes, los únicos
+capaces de atravesar el plateau antes de activar el criterio.
+
+\paragraph{Por qué $\varepsilon=10^{-5}$ es un objetivo exigente.}
+Clasificar XOR y alcanzar $\text{MSE}<10^{-5}$ son metas de dificultad muy
+distinta. Lo segundo exige $|y-t|\lesssim\sqrt{\varepsilon}\approx 3\times
+10^{-3}$ en cada salida, es decir, preactivaciones $|P_s|\gtrsim 6$ y pesos un
+orden de magnitud mayores que los iniciales de Xavier (\cref{eq:xavier}).
+Además, el gradiente de salida (\cref{eq:delta_s}) contiene el factor
+$Y_s\odot(1-Y_s)$, que se desvanece justamente al saturar: si el residuo es
+$\epsilon_r=|y-t|$, el delta escala como $\epsilon_r^2$, por lo que cada orden
+de magnitud adicional de precisión cuesta aproximadamente $10$ veces más
+épocas. Empíricamente (con $\alpha=20$, $\gamma=0.9$): exactitud $100\%$ en
+$\sim 10^2$ épocas, $\text{MSE}<10^{-3}$ en $\sim 3\times 10^2$,
+$\text{MSE}<10^{-4}$ en $\sim 2.5\times 10^3$ y $\text{MSE}<10^{-5}$ recién en
+$\sim 2.3\times 10^4$. En este régimen el producto
+$\alpha\times\text{épocas}$ es aproximadamente constante
+($\approx 4.7\times 10^5$), lo que fija un piso práctico para $\alpha$: con el
+presupuesto de $2\times 10^4$ épocas se requiere $\alpha\gtrsim 25$. Este
+``$\alpha$ grande'' no es síntoma de error, sino consecuencia de combinar MSE
+con sigmoide (con entropía cruzada el factor $Y_s(1-Y_s)$ se cancela y
+bastarían tasas de aprendizaje un orden de magnitud menores).
+
+\paragraph{Elección del rango de $\alpha$.}
+No existe un rango de $\alpha$ ``normal'' universal: la tasa de aprendizaje
+solo tiene significado relativo a la escala del gradiente, que aquí depende de
+la pérdida (MSE encoge el gradiente frente a entropía cruzada), del promedio
+$1/N$ (\cref{eq:upd_wo}) y de la forma del momentum. El rango se eligió con dos
+criterios prácticos: (i) un barrido logarítmico corto de pocas épocas para
+identificar el mayor $\alpha$ que aún desciende de forma estable, y (ii)
+verificar \emph{a posteriori} que los mejores ensayos de Optuna caigan en el
+interior del rango y no acumulados contra un borde —un óptimo pegado al borde
+indica que el verdadero óptimo está fuera del rango (o que el objetivo premia
+valores extremos por un defecto del criterio de paro, como ocurría con el paro
+por estancamiento). Con $\alpha\in[1,200]$ los ensayos exitosos se concentran
+en $\alpha\in[29,96]$, cómodamente en el interior.
+
+\paragraph{El factor $(1-\gamma)$: ventajas y riesgos.}
+La formulación con promedio móvil (\cref{eq:upd_wo}) hace que el paso
+estacionario sea $\approx\alpha\,\nabla E$ \emph{independientemente} de
+$\gamma$, desacoplando ambos hiperparámetros: $\alpha$ controla el tamaño del
+paso y $\gamma$ solo la inercia, lo que es deseable cuando Optuna los busca
+simultáneamente (en el momentum clásico $V\leftarrow\gamma V+\alpha\nabla E$ el
+paso estacionario es $\alpha/(1-\gamma)$, de modo que cambiar $\gamma$ cambia
+la tasa efectiva). Tiene, sin embargo, dos contrapartidas. Primero, el
+transitorio es más lento: los primeros pasos quedan escalados por $(1-\gamma)$
+hasta que la velocidad acumula. Segundo, el caso límite $\gamma\to 1$ anula por
+completo la actualización ($\alpha(1-\gamma)\to 0$), por lo que el espacio de
+búsqueda se acota a $\gamma\le 0.95$. Cabe notar que \texttt{optim.SGD} de
+PyTorch (usado para AlexNet en la \Cref{sec:parte4}) implementa la forma
+clásica, así que los valores de $\alpha$ no son directamente comparables entre
+ambos modelos.
+
+\paragraph{Elección de $w_{\max}$.}
+El recorte de pesos solo debe actuar como red de seguridad ante pasos
+explosivos, nunca como restricción activa: si $w_{\max}$ fuera menor que los
+pesos que la solución requiere ($|w|\approx 13$ como máximo en las corridas
+exitosas), el objetivo $\varepsilon$ sería directamente inalcanzable, y un peso
+``pegado'' a $\pm w_{\max}$ tras el entrenamiento delataría que el recorte está
+distorsionando el aprendizaje. Con $w_{\max}=1000$ el recorte no se activa en
+ninguna corrida sana y solo intervendría ante una divergencia numérica.
+
+\paragraph{Lectura de los resultados.}
+El atributo \texttt{trial.user\_attr["error"]} registra la primera iteración en
 que el error cae por debajo de $\varepsilon$, lo que documenta la cantidad de
-iteraciones necesarias para la convergencia de cada configuración exitosa. Como
-es de esperar, configuraciones con $\gamma>0$ (\emph{momentum} activo)
-convergen en menos iteraciones que aquellas con $\gamma=0$, en concordancia con
-el efecto acelerador del término de inercia descrito en \Cref{sec:momentum}.
+iteraciones necesarias para la convergencia de cada configuración exitosa. En
+la \Cref{tab:xor-best} se observa que las configuraciones con $\gamma>0$
+(momentum activo) convergen en menos iteraciones que aquellas con
+$\gamma\approx 0$, en concordancia con el efecto acelerador del término de
+inercia descrito en \Cref{sec:momentum}; asimismo, dentro del rango explorado,
+mayor $\alpha$ reduce las iteraciones necesarias, consistente con la relación
+$\alpha\times\text{épocas}\approx\text{constante}$ del régimen saturado.
 
 %==============================================================================
 \section{Parte 3: Clasificador de datos en \texorpdfstring{$\mathbb{R}^2$}{R2}}\label{sec:parte3}
@@ -839,87 +1028,7 @@ además una mayor estabilidad entre particiones.
         con pocas muestras.
 \end{itemize}
 
-%==============================================================================
-\begin{thebibliography}{99}
-%==============================================================================
-
-\bibitem{cybenko1989}
-G.~Cybenko, ``Approximation by superpositions of a sigmoidal function,''
-\emph{Mathematics of Control, Signals and Systems}, vol.~2, no.~4,
-pp.~303--314, 1989.
-
-\bibitem{hornik1989}
-K.~Hornik, M.~Stinchcombe, and H.~White, ``Multilayer feedforward networks are
-universal approximators,'' \emph{Neural Networks}, vol.~2, no.~5,
-pp.~359--366, 1989.
-
-\bibitem{geman1992}
-S.~Geman, E.~Bienenstock, and R.~Doursat, ``Neural networks and the
-bias/variance dilemma,'' \emph{Neural Computation}, vol.~4, no.~1, pp.~1--58,
-1992.
-
-\bibitem{hechtnielsen1987}
-R.~Hecht-Nielsen, ``Kolmogorov's mapping neural network existence theorem,'' in
-\emph{Proc. IEEE International Conference on Neural Networks}, vol.~III,
-pp.~11--14, 1987.
-
-\bibitem{masters1993}
-T.~Masters, \emph{Practical Neural Network Recipes in C++}. Academic Press,
-1993.
-
-\bibitem{huang1998}
-G.-B. Huang and H.~A. Babri, ``Upper bounds on the number of hidden neurons in
-feedforward networks with arbitrary bounded nonlinear activation functions,''
-\emph{IEEE Transactions on Neural Networks}, vol.~9, no.~1, pp.~224--229, 1998.
-
-\bibitem{stathakis2009}
-D.~Stathakis, ``How many hidden layers and nodes?,'' \emph{International Journal
-of Remote Sensing}, vol.~30, no.~8, pp.~2133--2147, 2009.
-
-\bibitem{karsoliya2012}
-S.~Karsoliya, ``Approximating number of hidden layer neurons in multiple hidden
-layer BPNN architecture,'' \emph{International Journal of Engineering Trends and
-Technology}, vol.~3, no.~6, pp.~714--717, 2012.
-
-\bibitem{heaton2008}
-J.~Heaton, \emph{Introduction to Neural Networks for Java}, 2nd~ed. Heaton
-Research, 2008.
-
-\bibitem{glorot2010}
-X.~Glorot and Y.~Bengio, ``Understanding the difficulty of training deep
-feedforward neural networks,'' in \emph{Proc. 13th International Conference on
-Artificial Intelligence and Statistics (AISTATS)}, pp.~249--256, 2010.
-
-\bibitem{rumelhart1986}
-D.~E. Rumelhart, G.~E. Hinton, and R.~J. Williams, ``Learning representations by
-back-propagating errors,'' \emph{Nature}, vol.~323, pp.~533--536, 1986.
-
-\bibitem{krizhevsky2012alexnet}
-A.~Krizhevsky, I.~Sutskever, and G.~E. Hinton, ``ImageNet classification with
-deep convolutional neural networks,'' in \emph{Advances in Neural Information
-Processing Systems (NeurIPS)}, vol.~25, pp.~1097--1105, 2012.
-
-\bibitem{diazpinto2019acrima}
-A.~Diaz-Pinto \emph{et~al.}, ``CNNs for automatic glaucoma assessment using
-fundus images: an extensive validation,'' \emph{BioMedical Engineering OnLine},
-vol.~18, no.~29, 2019. Conjunto ACRIMA disponible en
-\url{https://www.kaggle.com/datasets/toaharahmanratul/acrima-dataset}.
-
-\bibitem{paszke2019pytorch}
-A.~Paszke \emph{et~al.}, ``PyTorch: An imperative style, high-performance deep
-learning library,'' in \emph{Advances in Neural Information Processing Systems
-(NeurIPS)}, vol.~32, pp.~8024--8035, 2019.
-
-\bibitem{akiba2019optuna}
-T.~Akiba, S.~Sano, T.~Yanase, T.~Ohta, and M.~Koyama, ``Optuna: A
-next-generation hyperparameter optimization framework,'' in \emph{Proc. 25th
-ACM SIGKDD International Conference on Knowledge Discovery \& Data Mining},
-pp.~2623--2631, 2019.
-
-\bibitem{pedregosa2011scikit}
-F.~Pedregosa \emph{et~al.}, ``Scikit-learn: Machine learning in Python,''
-\emph{Journal of Machine Learning Research}, vol.~12, pp.~2825--2830, 2011.
-
-\end{thebibliography}
+\bibliographystyle{IEEEtran}
+\bibliography{referencias}
 
 \end{document}
