@@ -41,10 +41,7 @@ import torch
 import re
 import os
 
-# HuggingFace authentication token
-os.environ["HF_TOKEN"] = "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"
-
-# Load token from environment if available
+# HuggingFace authentication token — set HF_TOKEN in your environment before running
 HF_TOKEN = os.getenv("HF_TOKEN")
 TOKEN = HF_TOKEN if HF_TOKEN else None
 
